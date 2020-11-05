@@ -1,0 +1,24 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: redis
+spec:
+  releaseName: redis
+  chart:
+    spec:
+      chart: redis
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+        namespace: flux-system
+      version: "11.3.4"
+  interval: 1h0m0s
+  # Default values
+  # https://github.com/bitnami/charts/blob/master/bitnami/redis/values.yaml
+  values:
+    usePassword: false
+    cluster:
+      enabled: false
+    master:
+      persistence:
+        enabled: false
