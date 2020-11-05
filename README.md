@@ -8,6 +8,28 @@ We will configure Flux to install, test and upgrade a demo app using
 Flux will monitor the Helm repository, and it will automatically
 upgrade the Helm releases to their latest chart version based on semver ranges.
 
+## Prerequisites
+
+You will need a Kubernetes cluster version 1.16 or newer and kubectl version 1.18.
+For a quick local test, you can use [Kubernetes kind](https://kind.sigs.k8s.io/docs/user/quick-start/).
+Any other Kubernetes setup will work as well though.
+
+In order to follow the guide you'll need a GitHub account and a
+[personal access token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line)
+that can create repositories (check all permissions under `repo`).
+
+Install the Flux CLI on MacOS and Linux using Homebrew:
+
+```sh
+brew install fluxcd/tap/flux
+```
+
+Or install the CLI by downloading precompiled binaries using a Bash script:
+
+```sh
+curl -s https://toolkit.fluxcd.io/install.sh | sudo bash
+```
+
 ## Repository structure
 
 The Git repository contains the following top directories:
@@ -70,7 +92,7 @@ spec:
         namespace: flux-system
   interval: 5m
   values:
-    cache: redis.redis:6379
+    cache: redis-master.redis:6379
     ingress:
       enabled: true
       annotations:
@@ -212,7 +234,7 @@ spec:
 Note that with `path: ./apps/staging` we configure Flux to sync the staging Kustomize overlay and 
 with `dependsOn` we tell Flux to create the infrastructure items before deploying the apps.
 
-Fork this repository and export your GitHub personal access token, username and repo name:
+Fork this repository on your personal GitHub account and export your GitHub access token, username and repo name:
 
 ```sh
 export GITHUB_TOKEN=<your-token>
@@ -220,7 +242,13 @@ export GITHUB_USER=<your-username>
 export GITHUB_REPO=<repository-name>
 ```
 
-Install the Flux CLI with `brew install fluxcd/tap/flux` and bootstrap the staging cluster:
+Verify that your staging cluster satisfies the prerequisites with:
+
+```sh
+flux check --pre
+```
+
+Bootstrap the staging cluster:
 
 ```sh
 flux bootstrap github \
