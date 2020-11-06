@@ -184,8 +184,7 @@ spec:
 Note that with ` interval: 5m` we configure Flux to pull the Helm repository index every five minutes.
 If the index contains a new chart version that matches a `HelmRelease` semver range, Flux will upgrade the release.
 
-
-## Cluster bootstrap
+## Bootstrap staging and production
 
 The clusters dir contains the Flux configuration:
 
@@ -248,10 +247,11 @@ Verify that your staging cluster satisfies the prerequisites with:
 flux check --pre
 ```
 
-Bootstrap the staging cluster:
+Set the kubectl context to your staging cluster and bootstrap Flux:
 
 ```sh
 flux bootstrap github \
+    --context=staging \
     --owner=${GITHUB_USER} \
     --repository=${GITHUB_REPO} \
     --branch=main \
@@ -262,12 +262,77 @@ flux bootstrap github \
 The bootstrap command commits the manifests for the Flux components in `clusters/staging/flux-system` dir
 and creates a deploy key with read-only access on GitHub, so it can pull changes inside the cluster.
 
-Watch for the Helm releases being install on the cluster:
+Watch for the Helm releases being install on staging:
 
 ```console
-$ flux get helmreleases --all-namespaces 
+$ watch flux get helmreleases --all-namespaces 
 NAMESPACE	NAME   	REVISION	SUSPENDED	READY	MESSAGE                          
 nginx    	nginx  	5.6.14  	False    	True 	release reconciliation succeeded	
 podinfo  	podinfo	5.0.3   	False    	True 	release reconciliation succeeded	
 redis    	redis  	11.3.4  	False    	True 	release reconciliation succeeded
+```
+
+Bootstrap Flux on production by setting the context and path to your production cluster:
+
+```sh
+flux bootstrap github \
+    --context=production \
+    --owner=${GITHUB_USER} \
+    --repository=${GITHUB_REPO} \
+    --branch=main \
+    --personal \
+    --path=cluster/production
+```
+
+Watch the production reconciliation:
+
+```console
+$ watch flux get kustomizations
+NAME          	REVISION                                        READY
+apps          	main/797cd90cc8e81feb30cfe471a5186b86daf2758d	True
+flux-system   	main/797cd90cc8e81feb30cfe471a5186b86daf2758d	True
+infrastructure	main/797cd90cc8e81feb30cfe471a5186b86daf2758d	True
+```
+
+## Add clusters
+
+If you want to add a cluster to your fleet, first clone your repo locally:
+
+```sh
+git clone https://github.com/${GITHUB_USER}/${GITHUB_REPO}.git
+cd ${GITHUB_REPO}
+```
+
+Create a dir inside `clusters` with your cluster name:
+
+```sh
+mkdir -p clusters/dev
+```
+
+Copy the sync manifests from staging:
+
+```sh
+cp clusters/staging/infrastructure.yaml clusters/dev
+cp clusters/staging/apps.yaml clusters/dev
+```
+
+You could create a dev overlay inside `apps`, make sure
+to change the `spec.path` inside `clusters/dev/apps.yaml` to `path: ./apps/dev`. 
+
+Push the changes to main branch:
+
+```sh
+git add -A && git commit -m "add dev cluster" && git push
+```
+
+Set the kubectl context and path to your dev cluster and bootstrap Flux:
+
+```sh
+flux bootstrap github \
+    --context=dev \
+    --owner=${GITHUB_USER} \
+    --repository=${GITHUB_REPO} \
+    --branch=main \
+    --personal \
+    --path=cluster/dev
 ```
