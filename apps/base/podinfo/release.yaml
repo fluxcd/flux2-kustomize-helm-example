@@ -21,4 +21,4 @@ spec:
       enabled: true
       annotations:
         kubernetes.io/ingress.class: nginx
-      path: "/*"
+      path: "/"
