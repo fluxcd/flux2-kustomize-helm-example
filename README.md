@@ -349,7 +349,102 @@ flux bootstrap github \
     --path=cluster/dev
 ```
 
-### Customize Flux manifests
+## Encrypt Kubernetes secrets
+
+In order to store secrets safely in a Git repository,
+you can use Mozilla's SOPS CLI to encrypt Kubernetes secrets with OpenPGP or KMS.
+
+Install [gnupg](https://www.gnupg.org/) and [sops](https://github.com/mozilla/sops):
+
+```sh
+brew install gnupg sops
+```
+
+Generate a GPG key for Flux without specifying a passphrase and retrieve the GPG key ID:
+
+```console
+$ gpg --full-generate-key
+Email address: fluxcdbot@users.noreply.github.com
+
+$ gpg --list-secret-keys fluxcdbot@users.noreply.github.com
+sec   rsa3072 2020-09-06 [SC]
+      1F3D1CED2F865F5E59CA564553241F147E7C5FA4
+```
+
+Create a Kubernetes secret on your clusters with the private key:
+
+```sh
+gpg --export-secret-keys \
+--armor 1F3D1CED2F865F5E59CA564553241F147E7C5FA4 |
+kubectl create secret generic sops-gpg \
+--namespace=flux-system \
+--from-file=sops.asc=/dev/stdin
+```
+
+Generate a Kubernetes secret manifest and encrypt the secret's data field with sops:
+
+```sh
+kubectl -n default create secret generic basic-auth \
+--from-literal=user=admin \
+--from-literal=password=change-me \
+--dry-run=client \
+-o yaml > apps/base/podinfo/basic-auth.yaml
+
+sops --encrypt \
+--pgp=1F3D1CED2F865F5E59CA564553241F147E7C5FA4 \
+--encrypted-regex '^(data|stringData)$' \
+--in-place apps/base/podinfo/basic-auth.yaml
+```
+
+Add the secret to `apps/base/podinfo/kustomization.yaml`:
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: podinfo
+resources:
+  - namespace.yaml
+  - release.yaml
+  - basic-auth.yaml
+```
+
+Enable decryption on your clusters by editing the `apps.yaml` files:
+
+```yaml
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+kind: Kustomization
+metadata:
+  name: apps
+  namespace: flux-system
+spec:
+  # content omitted for brevity
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-gpg
+```
+
+Export the public key so anyone with access to the repository can encrypt secrets but not decrypt them:
+
+```sh
+gpg --export -a fluxcdbot@users.noreply.github.com > public.key
+```
+
+Push the changes to main branch:
+
+```sh
+git add -A && git commit -m "add basic-auth encrypted secret" && git push
+```
+
+Verify that the secret has been created in the `podinfo` namespace on both clusters:
+
+```sh
+kubectl --context staging -n podinfo get secrets
+kubectl --context production -n podinfo get secrets
+```
+
+
+## Customize Flux manifests
 
 Assuming you want to add custom annotations and labels to the Flux controllers in production.
 
