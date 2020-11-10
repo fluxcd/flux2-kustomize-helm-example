@@ -259,7 +259,7 @@ flux bootstrap github \
     --repository=${GITHUB_REPO} \
     --branch=main \
     --personal \
-    --path=cluster/staging
+    --path=clusters/staging
 ```
 
 The bootstrap command commits the manifests for the Flux components in `clusters/staging/flux-system` dir
@@ -296,7 +296,7 @@ flux bootstrap github \
     --repository=${GITHUB_REPO} \
     --branch=main \
     --personal \
-    --path=cluster/production
+    --path=clusters/production
 ```
 
 Watch the production reconciliation:
@@ -349,7 +349,7 @@ flux bootstrap github \
     --repository=${GITHUB_REPO} \
     --branch=main \
     --personal \
-    --path=cluster/dev
+    --path=clusters/dev
 ```
 
 ## Encrypt Kubernetes secrets
@@ -444,75 +444,4 @@ Verify that the secret has been created in the `podinfo` namespace on both clust
 ```sh
 kubectl --context staging -n podinfo get secrets
 kubectl --context production -n podinfo get secrets
-```
-
-## Customize Flux manifests
-
-Assuming you want to add custom annotations and labels to the Flux controllers in production.
-
-First clone your repo locally:
-
-```sh
-git clone https://github.com/${GITHUB_USER}/${GITHUB_REPO}.git
-cd ${GITHUB_REPO}
-```
-
-Create a Kustomize patch and set the metadata for source-controller and kustomize-controller pods:
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: source-controller
-  namespace: flux-system
-spec:
-  template:
-    metadata:
-      annotations:
-        custom: annotation
-      labels:
-        custom: label
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: kustomize-controller
-  namespace: flux-system
-spec:
-  template:
-    metadata:
-      annotations:
-        custom: annotation
-      labels:
-        custom: label
-```
-
-Save the above file as `flux-system-patch.yaml` inside the `clusters/production` dir.
-
-Create `clusters/production/kustomization.yaml` file with the following content:
-
-```yaml
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-resources:
-  - flux-system
-  - infrastructure.yaml
-  - apps.yaml
-patchesStrategicMerge:
-  - flux-system-patch.yaml
-```
-
-Push the changes to main branch:
-
-```sh
-git add -A && git commit -m "add production metadata" && git push
-```
-
-Flux will detect the change and will update itself on the production cluster.
-You can request an immediate reconciliation with:
-
-```sh
-flux reconcile kustomization flux-system \
---context=production \
---with-source
 ```
