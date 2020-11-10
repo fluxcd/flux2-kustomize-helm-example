@@ -13,6 +13,9 @@ spec:
         namespace: flux-system
       version: "11.3.4"
   interval: 1h0m0s
+  install:
+    remediation:
+      retries: 3
   # Default values
   # https://github.com/bitnami/charts/blob/master/bitnami/redis/values.yaml
   values:
