@@ -1,5 +1,7 @@
 # flux2-kustomize-helm-example
 
+![test](https://github.com/fluxcd/flux2-kustomize-helm-example/workflows/test/badge.svg)
+
 For this example we assume a scenario with two clusters: staging and production.
 The end goal is to leverage Flux and Kustomize to manage both clusters while minimizing duplicated declarations.
 
