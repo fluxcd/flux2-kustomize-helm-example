@@ -1,6 +1,7 @@
 # flux2-kustomize-helm-example
 
-![test](https://github.com/fluxcd/flux2-kustomize-helm-example/workflows/test/badge.svg)
+[![test](https://github.com/fluxcd/flux2-kustomize-helm-example/workflows/test/badge.svg)](https://github.com/fluxcd/flux2-kustomize-helm-example/actions)
+[![license](https://img.shields.io/github/license/fluxcd/flux2-kustomize-helm-example.svg)](https://github.com/fluxcd/flux2-kustomize-helm-example/blob/main/LICENSE)
 
 For this example we assume a scenario with two clusters: staging and production.
 The end goal is to leverage Flux and Kustomize to manage both clusters while minimizing duplicated declarations.
@@ -444,7 +445,6 @@ Verify that the secret has been created in the `podinfo` namespace on both clust
 kubectl --context staging -n podinfo get secrets
 kubectl --context production -n podinfo get secrets
 ```
-
 
 ## Customize Flux manifests
 
