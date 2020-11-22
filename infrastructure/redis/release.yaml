@@ -16,12 +16,6 @@ spec:
   install:
     remediation:
       retries: 3
-  # Default values
-  # https://github.com/bitnami/charts/blob/master/bitnami/redis/values.yaml
-  values:
-    usePassword: false
-    cluster:
-      enabled: false
-    master:
-      persistence:
-        enabled: false
+  valuesFrom:
+    - kind: ConfigMap
+      name: redis-values
