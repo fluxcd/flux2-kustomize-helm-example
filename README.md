@@ -1,6 +1,7 @@
 # flux2-kustomize-helm-example
 
 [![test](https://github.com/fluxcd/flux2-kustomize-helm-example/workflows/test/badge.svg)](https://github.com/fluxcd/flux2-kustomize-helm-example/actions)
+[![e2e](https://github.com/fluxcd/flux2-kustomize-helm-example/workflows/e2e/badge.svg)](https://github.com/fluxcd/flux2-kustomize-helm-example/actions)
 [![license](https://img.shields.io/github/license/fluxcd/flux2-kustomize-helm-example.svg)](https://github.com/fluxcd/flux2-kustomize-helm-example/blob/main/LICENSE)
 
 For this example we assume a scenario with two clusters: staging and production.
@@ -466,3 +467,13 @@ flux bootstrap github \
     --personal \
     --path=clusters/dev
 ```
+
+## Testing
+
+Any change to the Kubernetes manifests or to the repository structure should be validated in CI before
+a pull requests is merged into the main branch and synced on the cluster.
+
+This repository contains the following GitHub CI workflows:
+
+* the [test](./.github/workflows/test.yaml) workflow validates the Kubernetes manifests and Kustomize overlays with kubeval
+* the [e2e](./.github/workflows/e2e.yaml) workflow starts a Kubernetes cluster in CI and tests the staging setup by running Flux in Kubernetes Kind
