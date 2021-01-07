@@ -27,4 +27,7 @@ find . -type f -name $k -print0 | while IFS= read -r -d $'\0' file;
   do
     echo "INFO - Validating kustomization ${file/%$k}"
     kustomize build "${file/%$k}" | kubeval --ignore-missing-schemas
+    if [[ ${PIPESTATUS[0]} != 0 ]]; then
+      exit 1
+    fi
 done
