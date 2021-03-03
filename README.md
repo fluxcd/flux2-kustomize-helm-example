@@ -390,7 +390,7 @@ Export the public key so anyone with access to the repository can encrypt secret
 gpg --export -a fluxcdbot@users.noreply.github.com > public.key
 ```
 
-Push the changes to main branch:
+Push the changes to the main branch:
 
 ```sh
 git add -A && git commit -m "add encrypted secret" && git push
@@ -450,7 +450,7 @@ cp clusters/staging/apps.yaml clusters/dev
 You could create a dev overlay inside `apps`, make sure
 to change the `spec.path` inside `clusters/dev/apps.yaml` to `path: ./apps/dev`. 
 
-Push the changes to main branch:
+Push the changes to the main branch:
 
 ```sh
 git add -A && git commit -m "add dev cluster" && git push
@@ -466,6 +466,57 @@ flux bootstrap github \
     --branch=main \
     --personal \
     --path=clusters/dev
+```
+
+## Identical environments
+
+If you want to spin up an identical environment, you can bootstrap a cluster
+e.g. `production-clone` and reuse the `production` definitions.
+
+Bootstrap the `production-clone` cluster:
+
+```sh
+flux bootstrap github \
+    --context=production-clone \
+    --owner=${GITHUB_USER} \
+    --repository=${GITHUB_REPO} \
+    --branch=main \
+    --personal \
+    --path=clusters/production-clone
+```
+
+Pull the changes locally:
+
+```sh
+git pull origin main
+```
+
+Create a `kustomization.yaml` inside the `clusters/production-clone` dir:
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - flux-system
+  - ../production/infrastructure.yaml
+  - ../production/apps.yaml
+```
+
+Note that besides the `flux-system` kustomize overlay, we also include
+the `infrastructure` and `apps` manifests from the production dir.
+
+Push the changes to the main branch:
+
+```sh
+git add -A && git commit -m "add production clone" && git push
+```
+
+Tell Flux to deploy the production workloads on the `production-clone` cluster:
+
+```sh
+flux reconcile kustomization flux-system \
+    --context=production-clone \
+    --with-source 
 ```
 
 ## Testing
