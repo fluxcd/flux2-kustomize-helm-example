@@ -10,7 +10,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: bitnami
-        namespace: flux-system
+        namespace: podinfo-stage
       version: "5.6.14"
   interval: 1h0m0s
   install:

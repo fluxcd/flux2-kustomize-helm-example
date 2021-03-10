@@ -2,12 +2,12 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
 kind: Kustomization
 metadata:
   name: infrastructure
-  namespace: flux-system
+  namespace: podinfo-stage
 spec:
   interval: 1m0s
   sourceRef:
     kind: GitRepository
-    name: flux-system
+    name: podinfo-stage
   path: ./infrastructure-stage
   prune: true
   validation: client

@@ -2,14 +2,14 @@ apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
 kind: Kustomization
 metadata:
   name: apps
-  namespace: flux-system
+  namespace: podinfo-stage
 spec:
   interval: 1m0s
   dependsOn:
     - name: infrastructure
   sourceRef:
     kind: GitRepository
-    name: flux-system
+    name: podinfo-stage
   path: ./apps/staging
   prune: true
   validation: client
@@ -17,4 +17,4 @@ spec:
     - apiVersion: helm.toolkit.fluxcd.io/v1beta1
       kind: HelmRelease
       name: podinfo
-      namespace: podinfo
+      namespace: podinfo-stage
