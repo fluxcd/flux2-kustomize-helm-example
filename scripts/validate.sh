@@ -23,7 +23,7 @@ kustomize_config="kustomization.yaml"
 find . -type f -name '*.yaml' -print0 | while IFS= read -r -d $'\0' file;
   do
     echo "INFO - Validating $file"
-    yq validate -d'*' "$file"
+    yq e 'true' "$file" > /dev/null
 done
 
 find . -type f -name $kustomize_config -print0 | while IFS= read -r -d $'\0' file;
