@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# This script downloads the Flux OpenAPI schemas, then it validates the
+# Flux custom resources and the kustomize overlays using kubeval.
+# This script is meant to be run locally and in CI before the changes
+# are merged on the main branch that's synced by Flux.
+
 # Copyright 2020 The Flux authors. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +25,7 @@
 
 # Prerequisites
 # - yq v4.6
-# - kustomize v3.9
+# - kustomize v4.1
 # - kubeval v0.15
 
 set -o errexit
@@ -30,7 +35,7 @@ mkdir -p /tmp/flux-crd-schemas/master-standalone-strict
 curl -sL https://github.com/fluxcd/flux2/releases/latest/download/crd-schemas.tar.gz | tar zxf - -C /tmp/flux-crd-schemas/master-standalone-strict
 
 # mirror kustomize-controller build options
-kustomize_flags="--enable_kyaml=false --allow_id_changes=false --load_restrictor=LoadRestrictionsNone"
+kustomize_flags="--load-restrictor=LoadRestrictionsNone --reorder=legacy"
 kustomize_config="kustomization.yaml"
 
 find . -type f -name '*.yaml' -print0 | while IFS= read -r -d $'\0' file;

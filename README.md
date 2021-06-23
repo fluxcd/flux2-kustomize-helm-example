@@ -216,7 +216,7 @@ spec:
     - name: infrastructure
   sourceRef:
     kind: GitRepository
-    name: flux-sytem
+    name: flux-system
   path: ./apps/staging
   prune: true
   validation: client
