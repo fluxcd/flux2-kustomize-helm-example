@@ -101,7 +101,6 @@ spec:
       enabled: true
       annotations:
         kubernetes.io/ingress.class: nginx
-      path: "/*"
 ```
 
 In **apps/staging/** dir we have a Kustomize patch with the staging specific values:
@@ -120,7 +119,7 @@ spec:
   values:
     ingress:
       hosts:
-        - podinfo.staging
+        - host: podinfo.staging
 ```
 
 Note that with ` version: ">=1.0.0-alpha"` we configure Flux to automatically upgrade
@@ -141,7 +140,7 @@ spec:
   values:
     ingress:
       hosts:
-        - podinfo.production
+        - host: podinfo.production
 ```
 
 Note that with ` version: ">=1.0.0"` we configure Flux to automatically upgrade
@@ -216,7 +215,7 @@ spec:
     - name: infrastructure
   sourceRef:
     kind: GitRepository
-    name: flux-sytem
+    name: flux-system
   path: ./apps/staging
   prune: true
   validation: client
