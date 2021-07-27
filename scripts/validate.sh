@@ -45,12 +45,9 @@ find . -type f -name '*.yaml' -print0 | while IFS= read -r -d $'\0' file;
 done
 
 echo "INFO - Validating clusters"
-find ./clusters -type f -name '*.yaml' -maxdepth 1 -print0 | while IFS= read -r -d $'\0' file;
+find ./clusters -maxdepth 2 -type f -name '*.yaml' -print0 | while IFS= read -r -d $'\0' file;
   do
     kubeval ${file} --strict --ignore-missing-schemas --additional-schema-locations=file:///tmp/flux-crd-schemas
-    if [[ ${PIPESTATUS[0]} != 0 ]]; then
-      exit 1
-    fi
 done
 
 echo "INFO - Validating kustomize overlays"
