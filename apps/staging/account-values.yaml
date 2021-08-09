@@ -1,0 +1,68 @@
+
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: account
+  namespace: default
+spec:
+  test:
+    enable: false
+  values:
+    # Stage values for account chart
+    minReplicas: 1
+    maxReplicas: 1
+
+    resources:
+      requests:
+        cpu: 25m
+        memory: 50Mi
+      limits:
+        cpu: 25m
+        memory: 50Mi
+
+    env:
+    - name: GOMAXPROCS
+      value: "1"
+    - name: KAFKA_BROKERS
+      valueFrom:
+        configMapKeyRef:
+          name: kafka-broker-addresses
+          key: kafka-broker-addresses
+    - name: KAFKA_MAXPENDINGPUBLISHES
+      value: "100000"
+    - name: KAFKA_MAXPUBLISHRETRIES
+      value: "1448"
+    - name: KAFKA_TOPIC_ACCOUNT_MODIFIED
+      value: "account.account.modified--json"
+    - name: KAFKA_TOPIC_MIN_REPLICAS
+      value: "2"
+    - name: KAFKA_TOPIC_PARTITIONS
+      value: "10"
+    - name: KAFKA_TOPIC_REPLICATION
+      value: "3"
+    - name: KAFKA_VERSION
+      value: "1.1.0"
+    - name: LOG_CALLER
+      value: "true"
+    - name: LOG_ENCODING
+      value: "json"
+    - name: LOG_ENCODING_LEVEL
+      value: "capital"
+    - name: LOG_LEVEL
+      value: "warn"
+    - name: POSTGRES_CONNECTION
+      valueFrom:
+        secretKeyRef:
+          name: account-secrets
+          key: POSTGRES_CONNECTION
+    - name: POSTGRES_MIGRATION_SOURCE
+      value: "file:///migrations"
+    - name: PROTECTED_DEMOGRAPHICS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: account-secrets
+          key: PROTECTED_DEMOGRAPHICS_KEY
+    - name: PUBLICKEY
+      value: "/keys/auth.rsa.pub"
+    - name: REQUEST_TIMEOUT
+      value: "3s"
