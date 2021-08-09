@@ -1,0 +1,55 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: account
+  namespace: default
+spec:
+  releaseName: account
+  chart:
+    spec:
+      chart: account
+      sourceRef:
+        kind: HelmRepository
+        name: account
+        namespace: flux-system
+  interval: 5m
+  install:
+    remediation:
+      retries: 3
+  values:
+    labels:
+      dbInstance: write
+
+    podAffinity:
+      - website
+      - nginx-internal
+    podAntiAffinity:
+      - account
+
+    image:
+      repository: 678699828611.dkr.ecr.us-east-1.amazonaws.com
+      pullPolicy: IfNotPresent
+
+    port: 33001
+
+    probes:
+      readinessProbe:
+        httpGet:
+          path: /health
+          port: 33001
+        failureThreshold: 5
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        timeoutSeconds: 1
+
+    volumeMounts:
+    - name: auth-public-key
+      mountPath: "/keys/auth.rsa.pub"
+      subPath: auth.rsa.pub
+
+    volumes:
+    - name: auth-public-key
+      secret:
+        secretName: auth-public
+        defaultMode: 0777
