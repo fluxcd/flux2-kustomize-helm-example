@@ -4,4 +4,4 @@ metadata:
   name: account
 spec:
   interval: 1m
-  url: https://registry.nichestage.com/library/account
+  url: https://travelinglex.github.io/account/
