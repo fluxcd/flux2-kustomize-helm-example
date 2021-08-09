@@ -1,0 +1,7 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: HelmRepository
+metadata:
+  name: account
+spec:
+  interval: 1m
+  url: https://registry.nichestage.com/library/account
