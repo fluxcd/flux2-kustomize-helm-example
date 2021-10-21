@@ -110,6 +110,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: podinfo
+  namespace: podinfo
 spec:
   chart:
     spec:
@@ -171,6 +172,7 @@ apiVersion: source.toolkit.fluxcd.io/v1beta1
 kind: HelmRepository
 metadata:
   name: podinfo
+  namespace: flux-system
 spec:
   interval: 5m
   url: https://stefanprodan.github.io/podinfo
@@ -179,6 +181,7 @@ apiVersion: source.toolkit.fluxcd.io/v1beta1
 kind: HelmRepository
 metadata:
   name: bitnami
+  namespace: flux-system
 spec:
   interval: 30m
   url: https://charts.bitnami.com/bitnami
@@ -409,6 +412,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: redis
+  namespace: redis
 spec:
   # content omitted for brevity
   values:
