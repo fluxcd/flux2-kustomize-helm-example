@@ -3,4 +3,4 @@ kind: Kustomization
 resources:
   - sources
   - redis
-  - ingress-nginx
+  - ingress-nginx-internal
