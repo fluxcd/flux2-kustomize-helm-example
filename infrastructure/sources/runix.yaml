@@ -1,0 +1,7 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: HelmRepository
+metadata:
+  name: runix
+spec:
+  interval: 30m
+  url: https://helm.runix.net/

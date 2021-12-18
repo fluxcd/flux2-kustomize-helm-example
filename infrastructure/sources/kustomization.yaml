@@ -6,3 +6,4 @@ resources:
   - podinfo.yaml
   - ingress-nginx.yaml
   - nfs-subdir-external-provisioner.yaml
+  - runix.yaml

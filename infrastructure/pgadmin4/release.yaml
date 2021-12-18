@@ -1,0 +1,60 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: pgadmin4
+spec:
+  releaseName: pgadmin4
+  chart:
+    spec:
+      chart: pgadmin4
+      sourceRef:
+        kind: HelmRepository
+        name: runix
+        namespace: flux-system
+      version: "1.5.6"
+  interval: 1h0m0s
+  install:
+    remediation:
+      retries: 3
+  values:
+    serverDefinitions:
+      enabled: true
+      # password of postgress is "06G9en8Dq6j42gw"
+      servers: |-
+        "1": {
+          "Name": "postgresql.postgresql.svc.cluster.local",
+          "Group": "Servers",
+          "Port": 5432,
+          "Username": "postgres",
+          "Host": "postgresql.postgresql.svc.cluster.local",
+          "SSLMode": "prefer",
+          "MaintenanceDB": "postgres"
+        },
+        "2": {
+          "Name": "postgresql13.postgresql.svc.cluster.local",
+          "Group": "Servers",
+          "Port": 5432,
+          "Username": "postgres",
+          "Host": "postgresql13.postgresql.svc.cluster.local",
+          "SSLMode": "prefer",
+          "MaintenanceDB": "postgres"
+        }
+    env:
+      email: "admin@ericxliu.local"
+      password: "DI4oI2CxnG7PKed"
+    ingress:
+      enabled: true
+      annotations:
+        kubernetes.io/ingress.class: "nginx-internal"
+        cert-manager.io/cluster-issuer: ca-local
+      hosts:
+        - host: pgadmin.ericxliu.local
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: pgadmin-ericxliu-local-ca
+          hosts:
+            - pgadmin.ericxliu.local
+    persistentVolume:
+      enabled: false
