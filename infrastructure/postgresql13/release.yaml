@@ -17,7 +17,6 @@ spec:
     remediation:
       retries: 3
   values:
-    service:
     image:
       repository: bitnami/postgresql
       tag: 13.4.0-debian-10-r57
