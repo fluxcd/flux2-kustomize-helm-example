@@ -31,11 +31,11 @@ spec:
           "MaintenanceDB": "postgres"
         },
         "2": {
-          "Name": "postgresql13.postgresql.svc.cluster.local",
+          "Name": "postgresql13.postgresql13.svc.cluster.local",
           "Group": "Servers",
           "Port": 5432,
           "Username": "postgres",
-          "Host": "postgresql13.postgresql.svc.cluster.local",
+          "Host": "postgresql13.postgresql13.svc.cluster.local",
           "SSLMode": "prefer",
           "MaintenanceDB": "postgres"
         }
