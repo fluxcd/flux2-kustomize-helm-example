@@ -1,0 +1,43 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: ingress-nginx-internal
+spec:
+  releaseName: ingress-nginx-internal
+  chart:
+    spec:
+      chart: ingress-nginx
+      sourceRef:
+        kind: HelmRepository
+        name: ingress-nginx
+        namespace: flux-system
+      version: "5.6.14"
+  interval: 1h0m0s
+  install:
+    remediation:
+      retries: 3
+  # Default values
+  # https://github.com/bitnami/charts/blob/master/bitnami/nginx-ingress-controller/values.yaml
+  values:
+    controller:
+      watchIngressWithoutClass: true
+      ingressClassByName: true
+      ingressClassResource:
+        name: nginx-internal
+        enabled: true
+        default: false
+        controllerValue: "k8s.io/ingress-nginx1"
+      # Not sure why need this one
+      # https://stackoverflow.com/questions/64781320/ingress-controller-name-for-the-ingress-class
+      # https://github.com/kubernetes/ingress-nginx/issues/5593
+      # https://github.com/kubernetes/ingress-nginx/issues/5593#issuecomment-647538272
+      extraArgs:
+        ingress-class: nginx-internal
+    
+      service:
+        type: LoadBalancer
+        externalIPs:
+        - 192.168.1.10
+        targetPorts:
+          http: 80
+          https: 443
