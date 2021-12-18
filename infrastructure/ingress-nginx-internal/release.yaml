@@ -11,7 +11,7 @@ spec:
         kind: HelmRepository
         name: ingress-nginx
         namespace: flux-system
-      version: "3.36.0"
+      version: "4.0.13"
   interval: 1h0m0s
   install:
     remediation:
@@ -33,7 +33,6 @@ spec:
       # https://github.com/kubernetes/ingress-nginx/issues/5593#issuecomment-647538272
       extraArgs:
         ingress-class: nginx-internal
-    
       service:
         type: LoadBalancer
         externalIPs:
