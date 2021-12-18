@@ -7,3 +7,4 @@ resources:
   - homer
   - default-nfs-provisioner
   - postgresql13
+  - pgadmin4
