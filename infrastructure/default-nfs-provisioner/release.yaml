@@ -1,0 +1,28 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: default-nfs-provisioner
+spec:
+  releaseName: default-nfs-provisioner
+  chart:
+    spec:
+      chart: nfs-subdir-external-provisioner
+      sourceRef:
+        kind: HelmRepository
+        name: nfs-subdir-external-provisioner
+        namespace: flux-system
+      version: "4.0.14"
+  interval: 1h0m0s
+  install:
+    remediation:
+      retries: 3
+  values:
+    storageClass:
+      name: default
+      defaultClass: true
+      reclaimPolicy: Retain
+    nfs:
+      server: diskstation.local
+      path: /volume2/kubernetes/default-stroage-provision
+      mountOptions:
+      - nfsvers=4.1

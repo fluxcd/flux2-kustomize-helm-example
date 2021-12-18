@@ -5,3 +5,4 @@ resources:
   - redis
   - ingress-nginx-internal
   - homer
+  - default-nfs-provisioner
