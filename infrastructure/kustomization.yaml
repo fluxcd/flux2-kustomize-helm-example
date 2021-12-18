@@ -8,3 +8,4 @@ resources:
   - default-nfs-provisioner
   - postgresql13
   - pgadmin4
+  - vaultwarden

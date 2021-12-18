@@ -7,3 +7,4 @@ resources:
   - ingress-nginx.yaml
   - nfs-subdir-external-provisioner.yaml
   - runix.yaml
+  - k8s-at-home.yaml

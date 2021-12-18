@@ -1,0 +1,7 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: HelmRepository
+metadata:
+  name: k8s-at-home
+spec:
+  interval: 30m
+  url: https://k8s-at-home.com/charts/
