@@ -1,0 +1,43 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: homer
+spec:
+  releaseName: homer
+  chart:
+    spec:
+      chart: nginx
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+        namespace: flux-system
+      version: "9.5.6"
+  interval: 1h0m0s
+  install:
+    remediation:
+      retries: 3
+  values:
+    service:
+      type: ClusterIP
+    ingress:
+      enabled: true
+      annotations:
+        kubernetes.io/ingress.class: "nginx-internal"
+        cert-manager.io/cluster-issuer: ca-local
+      hostname: ericxliu.local.fake
+      extraHosts:
+        - name: ericxliu.local
+          path: /
+      extraTls:
+        - secretName: ericxliu-local-ca
+          hosts:
+            - ericxliu.local
+    serverBlock: |-
+      server {
+        listen 8080;
+        server_name localhost;
+        location / {
+            proxy_pass http://minio.diskstation.local/homer/;
+            rewrite ^/$ /homer/index.html break;
+        }
+      }
