@@ -1,0 +1,38 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: postgresql13
+spec:
+  releaseName: postgresql13
+  chart:
+    spec:
+      chart: postgresql
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+        namespace: flux-system
+      version: "10.12.1"
+  interval: 1h0m0s
+  install:
+    remediation:
+      retries: 3
+  values:
+    service:
+    image:
+      repository: bitnami/postgresql
+      tag: 13.4.0-debian-10-r57
+    global:
+      postgresql:
+        postgresqlPassword: "06G9en8Dq6j42gw"
+        postgresqlDatabase: "test"
+        replicationPassword: "rzgbfxr95VVYgjMt8Sci"
+        #replication:
+        #  enabled: true
+        #  slaveReplicas: 2
+        #  synchronousCommit: "on"
+        #  numSynchronousReplicas: 1
+        #  applicationName: my_application
+    persistence:
+      size: 10Gi
+      accessModes:
+        - ReadWriteMany

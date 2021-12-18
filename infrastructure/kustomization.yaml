@@ -6,3 +6,4 @@ resources:
   - ingress-nginx-internal
   - homer
   - default-nfs-provisioner
+  - postgresql13
