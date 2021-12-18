@@ -4,3 +4,4 @@ namespace: flux-system
 resources:
   - bitnami.yaml
   - podinfo.yaml
+  - ingress-nginx.yaml
