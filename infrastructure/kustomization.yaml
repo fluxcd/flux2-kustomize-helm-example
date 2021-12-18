@@ -4,4 +4,3 @@ resources:
   - sources
   - redis
   - ingress-nginx-internal
-  - ingress-nginx
