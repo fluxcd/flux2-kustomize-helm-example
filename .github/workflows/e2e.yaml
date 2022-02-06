@@ -36,9 +36,7 @@ jobs:
           kubectl -n flux-system wait kustomization/apps --for=condition=ready --timeout=5m
       - name: Verify helm reconciliation
         run: |
-          kubectl -n nginx wait helmrelease/nginx --for=condition=ready --timeout=5m
-          kubectl -n redis wait helmrelease/redis --for=condition=ready --timeout=5m
-          kubectl -n podinfo wait helmrelease/podinfo --for=condition=ready --timeout=5m
+          kubectl -n oden wait helmrelease/oden --for=condition=ready --timeout=5m
       - name: Debug failure
         if: failure()
         run: |
