@@ -1,0 +1,29 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: meilisearch-transform-response
+config:
+  add:
+    headers:
+      - Cache-Control:private
+plugin: response-transformer
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: meilisearch-ingress
+  annotations:
+    konghq.com/strip-path: "true"
+    konghq.com/plugins: meilisearch-transform-response
+spec:
+  ingressClassName: kong
+  rules:
+    - http:
+        paths:
+          - path: /v0/search
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: oden-meilisearch
+                port:
+                  name: http

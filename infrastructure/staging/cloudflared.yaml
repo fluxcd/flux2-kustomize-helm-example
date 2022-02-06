@@ -1,0 +1,15 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: cloudflared
+spec:
+  values:
+    replicaCount: 1
+    tunnel:
+      name: api-staging-tunnel
+      ingress: |
+        - hostname: api-staging.skolorna.com
+          httpHostHeader: api-staging.skolorna.com
+          service: http://kong-kong-proxy.kong:80
+        # Return 404 if there are no matches
+        - service: http_status:404

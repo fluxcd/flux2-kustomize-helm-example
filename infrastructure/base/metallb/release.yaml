@@ -1,0 +1,23 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: metallb
+spec:
+  releaseName: metallb
+  chart:
+    spec:
+      chart: metallb
+      sourceRef:
+        kind: HelmRepository
+        name: metallb
+        namespace: flux-system
+      version: ">0.0.0"
+  interval: 1h0m0s
+  # https://github.com/metallb/metallb/blob/main/charts/metallb/values.yaml
+  values:
+    # configInline:
+    #   address-pools:
+    #     - name: default
+    #       protocol: layer2
+    #       addresses:
+    #         - 10.0.12.0/24

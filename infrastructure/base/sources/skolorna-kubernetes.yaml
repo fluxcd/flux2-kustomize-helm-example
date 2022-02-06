@@ -1,0 +1,7 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: HelmRepository
+metadata:
+  name: skolorna-kubernetes
+spec:
+  interval: 1m0s
+  url: https://skolorna.github.io/skolorna-kubernetes/

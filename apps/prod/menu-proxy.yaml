@@ -1,0 +1,12 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: menu-proxy
+  namespace: menu-proxy
+spec:
+  chart:
+    spec:
+      version: "<2.0.0"
+  interval: 1m0s
+  values:
+    replicaCount: 2

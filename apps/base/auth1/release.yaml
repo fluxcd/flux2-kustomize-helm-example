@@ -1,0 +1,31 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: auth1
+  namespace: auth1
+spec:
+  releaseName: auth1
+  chart:
+    spec:
+      chart: auth1
+      sourceRef:
+        kind: HelmRepository
+        name: skolorna-kubernetes
+        namespace: flux-system
+  interval: 5m
+  values:
+    postgres:
+      secretName: auth1-postgres
+    smtp:
+      secretName: auth1-smtp
+    trustProxy: true
+    ingress:
+      className: kong
+      enabled: true
+      annotations:
+        konghq.com/strip-path: "true"
+      hosts:
+        - host: ""
+          paths:
+            - path: /v0/auth
+              pathType: ImplementationSpecific

@@ -1,0 +1,20 @@
+apiVersion: openebs.io/v1alpha1
+kind: MayastorPool
+metadata:
+  name: staging-w-pool
+  namespace: mayastor
+spec:
+  node: kube-staging-w
+  disks:
+    - /dev/sdb
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: mayastor-1
+parameters:
+  repl: "1"
+  protocol: "nvmf"
+  local: "true"
+provisioner: io.openebs.csi-mayastor
+volumeBindingMode: WaitForFirstConsumer

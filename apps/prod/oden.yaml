@@ -1,0 +1,9 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: oden
+  namespace: oden
+spec:
+  chart:
+    spec:
+      version: "<=0.1.1"

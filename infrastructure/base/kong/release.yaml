@@ -1,0 +1,20 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: kong
+spec:
+  releaseName: kong
+  chart:
+    spec:
+      chart: kong
+      sourceRef:
+        kind: HelmRepository
+        name: kong
+        namespace: flux-system
+      version: "2.5.0"
+  interval: 1h0m0s
+  values:
+    serviceMonitor:
+      enabled: true
+      labels:
+        release: promstack

@@ -1,0 +1,26 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: schedule
+  namespace: schedule
+spec:
+  releaseName: schedule
+  chart:
+    spec:
+      chart: schedule
+      sourceRef:
+        kind: HelmRepository
+        name: skolorna-kubernetes
+        namespace: flux-system
+  interval: 5m
+  values:
+    ingress:
+      className: kong
+      enabled: true
+      annotations:
+        konghq.com/strip-path: "true"
+      hosts:
+        - host: ""
+          paths:
+            - path: /v0/schedule
+              pathType: ImplementationSpecific

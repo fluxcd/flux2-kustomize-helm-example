@@ -1,0 +1,112 @@
+---
+# Source: mayastor/templates/mayastor-daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  namespace: mayastor
+  name: mayastor
+  labels:
+    openebs/engine: mayastor
+spec:
+  selector:
+    matchLabels:
+      app: mayastor
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  minReadySeconds: 10
+  template:
+    metadata:
+      labels:
+        app: mayastor
+    spec:
+      hostNetwork: true
+      # To resolve services from mayastor's namespace
+      dnsPolicy: ClusterFirstWithHostNet
+      nodeSelector:
+        openebs.io/engine: mayastor
+        kubernetes.io/arch: amd64
+      initContainers:
+        - name: message-bus-probe
+          image: busybox:latest
+          command:
+            [
+              "sh",
+              "-c",
+              'until nc -vz nats 4222; do echo "Waiting for message bus..."; sleep 1; done;',
+            ]
+      containers:
+        - name: mayastor
+          image: mayadata/mayastor:v0.8.1
+          imagePullPolicy: Always
+          env:
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: IMPORT_NEXUSES
+              value: "false"
+          args:
+            # The -l argument accepts cpu-list. Indexing starts at zero.
+            # For example -l 1,2,10-20 means use core 1, 2, 10 to 20.
+            # Note: Ensure that the CPU resources are updated accordingly.
+            # If you use 2 CPUs, the CPU: field should also read 2.
+            - "-N$(MY_NODE_NAME)"
+            - "-g$(MY_POD_IP)"
+            - "-nnats"
+            - "-P/var/local/mayastor/pools.yaml"
+            - "-l1"
+            - "-pmayastor-etcd"
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: device
+              mountPath: /dev
+            - name: udev
+              mountPath: /run/udev
+            - name: dshm
+              mountPath: /dev/shm
+            - name: configlocation
+              mountPath: /var/local/mayastor/
+          resources:
+            # NOTE: Each container must have mem/cpu limits defined in order to
+            # belong to Guaranteed QoS class, hence can never get evicted in case of
+            # pressure unless they exceed those limits. limits and requests must be the same.
+            #
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+              hugepages-2Mi: "2Gi"
+            requests:
+              cpu: "1"
+              memory: "1Gi"
+              hugepages-2Mi: "2Gi"
+          ports:
+            - containerPort: 10124
+              protocol: TCP
+              name: mayastor
+      volumes:
+        - name: device
+          hostPath:
+            path: /dev
+            type: Directory
+        - name: udev
+          hostPath:
+            path: /run/udev
+            type: Directory
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: "1Gi"
+        - name: hugepage
+          emptyDir:
+            medium: HugePages
+        - name: configlocation
+          hostPath:
+            path: /var/local/mayastor/
+            type: DirectoryOrCreate

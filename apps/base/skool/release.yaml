@@ -1,0 +1,29 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: skool
+  namespace: skool
+spec:
+  releaseName: skool
+  chart:
+    spec:
+      chart: skool
+      sourceRef:
+        kind: HelmRepository
+        name: skolorna-kubernetes
+        namespace: flux-system
+  interval: 5m
+  values:
+    cookie:
+      path: /v0/skool/
+
+    ingress:
+      className: kong
+      enabled: true
+      annotations:
+        konghq.com/strip-path: "true"
+      hosts:
+        - host: ""
+          paths:
+            - path: /v0/skool
+              pathType: ImplementationSpecific

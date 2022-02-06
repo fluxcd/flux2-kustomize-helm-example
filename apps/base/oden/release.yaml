@@ -1,0 +1,44 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: oden
+  namespace: oden
+spec:
+  releaseName: oden
+  chart:
+    spec:
+      chart: oden
+      sourceRef:
+        kind: HelmRepository
+        name: skolorna-kubernetes
+        namespace: flux-system
+  interval: 5m
+  values:
+    oden-http:
+      postgresSecretName: postgres
+
+      ingress:
+        className: kong
+        enabled: true
+        annotations:
+          konghq.com/strip-path: "true"
+        hosts:
+          - host: ""
+            paths:
+              - path: /v0/oden
+                pathType: ImplementationSpecific
+
+    munin:
+      postgresSecretName: postgres
+
+    # meilisearch:
+    #   ingress:
+    #     className: kong
+    #     enabled: true
+    #     annotations:
+    #       konghq.com/strip-path: "true"
+    #     hosts:
+    #       - host: ""
+    #         paths:
+    #           - path: /v0/search
+    #             pathType: ImplementationSpecific

@@ -1,0 +1,22 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: cloudflared
+spec:
+  releaseName: cloudflared
+  chart:
+    spec:
+      chart: cloudflared
+      sourceRef:
+        kind: HelmRepository
+        name: skolorna-kubernetes
+        namespace: flux-system
+      version: ">=0.0.0"
+  interval: 1h0m0s
+  install:
+    remediation:
+      retries: 3
+  # https://github.com/skolorna/skolorna-kubernetes/blob/main/charts/cloudflared/values.yaml
+  values:
+    tunnel:
+      credentialsSecret: tunnel-credentials

@@ -1,0 +1,9 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: skool
+  namespace: skool
+spec:
+  values:
+    cookie:
+      domain: api-staging.skolorna.com

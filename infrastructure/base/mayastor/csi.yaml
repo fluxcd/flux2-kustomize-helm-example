@@ -1,0 +1,127 @@
+---
+# Source: mayastor/templates/csi-daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  namespace: mayastor
+  name: mayastor-csi
+  labels:
+    openebs/engine: mayastor
+spec:
+  selector:
+    matchLabels:
+      app: mayastor-csi
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  minReadySeconds: 10
+  template:
+    metadata:
+      labels:
+        app: mayastor-csi
+    spec:
+      hostNetwork: true
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      # NOTE: Each container must have mem/cpu limits defined in order to
+      # belong to Guaranteed QoS class, hence can never get evicted in case of
+      # pressure unless they exceed those limits. limits and requests must be
+      # the same.
+      containers:
+        - name: mayastor-csi
+          image: mayadata/mayastor-csi:v0.8.0
+          imagePullPolicy: IfNotPresent
+          # we need privileged because we mount filesystems and use mknod
+          securityContext:
+            privileged: true
+          env:
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: RUST_BACKTRACE
+              value: "1"
+          args:
+            - "--csi-socket=/csi/csi.sock"
+            - "--node-name=$(MY_NODE_NAME)"
+            - "--grpc-endpoint=$(MY_POD_IP):10199"
+            # Doesn't work with this flag:
+            # - "--nvme-core-io-timeout=30"
+            - "-v"
+          volumeMounts:
+            - name: device
+              mountPath: /dev
+            - name: sys
+              mountPath: /sys
+            - name: run-udev
+              mountPath: /run/udev
+            - name: host-root
+              mountPath: /host
+            - name: plugin-dir
+              mountPath: /csi
+            - name: kubelet-dir
+              mountPath: /var/lib/kubelet
+              mountPropagation: "Bidirectional"
+          resources:
+            limits:
+              cpu: "100m"
+              memory: "50Mi"
+            requests:
+              cpu: "100m"
+              memory: "50Mi"
+        - name: csi-driver-registrar
+          image: quay.io/k8scsi/csi-node-driver-registrar:v2.1.0
+          args:
+            - "--csi-address=/csi/csi.sock"
+            - "--kubelet-registration-path=/var/lib/kubelet/plugins/mayastor.openebs.io/csi.sock"
+          volumeMounts:
+            - name: plugin-dir
+              mountPath: /csi
+            - name: registration-dir
+              mountPath: /registration
+          resources:
+            limits:
+              cpu: "100m"
+              memory: "50Mi"
+            requests:
+              cpu: "100m"
+              memory: "50Mi"
+          # Mayastor node plugin gRPC server
+          ports:
+            - containerPort: 10199
+              protocol: TCP
+              name: mayastor-node
+      volumes:
+        - name: device
+          hostPath:
+            path: /dev
+            type: Directory
+        - name: sys
+          hostPath:
+            path: /sys
+            type: Directory
+        - name: run-udev
+          hostPath:
+            path: /run/udev
+            type: Directory
+        - name: host-root
+          hostPath:
+            path: /
+            type: Directory
+        - name: registration-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins_registry/
+            type: Directory
+        - name: plugin-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins/mayastor.openebs.io/
+            type: DirectoryOrCreate
+        - name: kubelet-dir
+          hostPath:
+            path: /var/lib/kubelet
+            type: Directory

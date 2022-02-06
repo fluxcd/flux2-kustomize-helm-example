@@ -1,0 +1,79 @@
+---
+# Source: mayastor/templates/moac-deployment.yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: moac
+  namespace: mayastor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: moac
+  template:
+    metadata:
+      labels:
+        app: moac
+    spec:
+      serviceAccount: moac
+      containers:
+        - name: csi-provisioner
+          image: k8s.gcr.io/sig-storage/csi-provisioner:v2.2.1
+          args:
+            - "--v=2"
+            - "--csi-address=$(ADDRESS)"
+            - "--feature-gates=Topology=false"
+            - "--strict-topology=false"
+            - "--default-fstype=ext4"
+          env:
+            - name: ADDRESS
+              value: /var/lib/csi/sockets/pluginproxy/csi.sock
+          imagePullPolicy: "IfNotPresent"
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /var/lib/csi/sockets/pluginproxy/
+
+        - name: csi-attacher
+          image: k8s.gcr.io/sig-storage/csi-attacher:v3.2.1
+          args:
+            - "--v=2"
+            - "--csi-address=$(ADDRESS)"
+          env:
+            - name: ADDRESS
+              value: /var/lib/csi/sockets/pluginproxy/csi.sock
+          imagePullPolicy: "IfNotPresent"
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /var/lib/csi/sockets/pluginproxy/
+
+        - name: moac
+          image: mayadata/moac:v0.8.1
+          imagePullPolicy: Always
+          args:
+            - "--csi-address=$(CSI_ENDPOINT)"
+            - "--port=3000"
+            - "--watcher-idle-timeout=600000"
+            - "--etcd-endpoint=mayastor-etcd"
+            - "--message-bus=nats"
+            - "-v"
+          env:
+            - name: CSI_ENDPOINT
+              value: /var/lib/csi/sockets/pluginproxy/csi.sock
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /var/lib/csi/sockets/pluginproxy/
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 20
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 20
+            timeoutSeconds: 10
+      volumes:
+        - name: socket-dir
+          emptyDir: {}

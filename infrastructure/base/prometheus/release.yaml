@@ -1,0 +1,48 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: promstack
+spec:
+  releaseName: promstack
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      sourceRef:
+        kind: HelmRepository
+        name: prometheus-community
+        namespace: flux-system
+      version: "31.0"
+  interval: 1h0m0s
+  values:
+    prometheus:
+      prometheusSpec:
+        scrapeInterval: 10s
+        serviceMonitorSelector:
+          matchLabels:
+            release: promstack
+    grafana:
+      service:
+        type: LoadBalancer
+      persistence:
+        enabled: false
+      dashboardProviders:
+        dashboardproviders.yaml:
+          apiVersion: 1
+          providers:
+            - name: "default" # Configure a dashboard provider file to
+              orgId: 1 # put Kong dashboard into.
+              folder: ""
+              type: file
+              disableDeletion: false
+              editable: true
+              options:
+                path: /var/lib/grafana/dashboards/default
+      dashboards:
+        default:
+          kong-dash:
+            gnetId: 7424 # Install the following Grafana dashboard in the
+            revision: 7 # instance: https://grafana.com/dashboards/7424
+            datasource: Prometheus
+          kic-dash:
+            gnetId: 15662
+            datasource: Prometheus

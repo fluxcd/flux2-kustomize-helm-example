@@ -1,0 +1,96 @@
+---
+# Source: mayastor/templates/moac-rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: moac
+  namespace: mayastor
+---
+# Source: mayastor/templates/moac-rbac.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: moac
+rules:
+  # must create mayastor crd if it doesn't exist
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs: ["create"]
+    # must read csi plugin info
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["csinodes"]
+    verbs: ["get", "list", "watch"]
+    # must read/write mayastor node resources
+  - apiGroups: ["openebs.io"]
+    resources: ["mayastornodes"]
+    verbs: ["get", "list", "watch", "update", "create", "delete"]
+    # must update mayastor node status
+  - apiGroups: ["openebs.io"]
+    resources: ["mayastornodes/status"]
+    verbs: ["update"]
+    # must read mayastor pools info
+  - apiGroups: ["openebs.io"]
+    resources: ["mayastorpools"]
+    verbs: ["get", "list", "watch", "update", "replace"]
+    # must update mayastor pools status
+  - apiGroups: ["openebs.io"]
+    resources: ["mayastorpools/status"]
+    verbs: ["update"]
+    # must read/write mayastor volume resources
+  - apiGroups: ["openebs.io"]
+    resources: ["mayastorvolumes"]
+    verbs: ["get", "list", "watch", "update", "create", "delete"]
+    # must update mayastor volumes status
+  - apiGroups: ["openebs.io"]
+    resources: ["mayastorvolumes/status"]
+    verbs: ["update"]
+
+    # external provisioner & attacher
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch", "update", "create", "delete", "patch"]
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch"]
+
+    # external provisioner
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "update"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["list", "watch", "create", "update", "patch"]
+  - apiGroups: ["snapshot.storage.k8s.io"]
+    resources: ["volumesnapshots"]
+    verbs: ["get", "list"]
+  - apiGroups: ["snapshot.storage.k8s.io"]
+    resources: ["volumesnapshotcontents"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch"]
+
+    # external attacher
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["volumeattachments"]
+    verbs: ["get", "list", "watch", "update", "patch"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["volumeattachments/status"]
+    verbs: ["patch"]
+---
+# Source: mayastor/templates/moac-rbac.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: moac
+subjects:
+  - kind: ServiceAccount
+    name: moac
+    namespace: mayastor
+roleRef:
+  kind: ClusterRole
+  name: moac
+  apiGroup: rbac.authorization.k8s.io
