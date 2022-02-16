@@ -204,7 +204,7 @@ The clusters dir contains the Flux configuration:
 In **clusters/staging/** dir we have the Kustomization definitions:
 
 ```yaml
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
   name: apps
@@ -218,9 +218,9 @@ spec:
     name: flux-system
   path: ./apps/staging
   prune: true
-  validation: client
+  wait: true
 ---
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
   name: infrastructure
@@ -231,6 +231,7 @@ spec:
     kind: GitRepository
     name: flux-system
   path: ./infrastructure
+  prune: true
 ```
 
 Note that with `path: ./apps/staging` we configure Flux to sync the staging Kustomize overlay and 
@@ -302,7 +303,7 @@ flux bootstrap github \
 Watch the production reconciliation:
 
 ```console
-$ watch flux get kustomizations
+$ flux get kustomizations --watch
 NAME          	REVISION                                        READY
 apps          	main/797cd90cc8e81feb30cfe471a5186b86daf2758d	True
 flux-system   	main/797cd90cc8e81feb30cfe471a5186b86daf2758d	True
@@ -370,7 +371,7 @@ resources:
 Enable decryption on your clusters by editing the `infrastructure.yaml` files:
 
 ```yaml
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
   name: infrastructure
