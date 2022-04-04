@@ -167,7 +167,7 @@ Infrastructure:
 In **infrastructure/sources/** dir we have the Helm repositories definitions:
 
 ```yaml
-apiVersion: source.toolkit.fluxcd.io/v1beta2
+apiVersion: source.toolkit.fluxcd.io/v1beta1
 kind: HelmRepository
 metadata:
   name: podinfo
@@ -175,7 +175,7 @@ spec:
   interval: 5m
   url: https://stefanprodan.github.io/podinfo
 ---
-apiVersion: source.toolkit.fluxcd.io/v1beta2
+apiVersion: source.toolkit.fluxcd.io/v1beta1
 kind: HelmRepository
 metadata:
   name: bitnami
