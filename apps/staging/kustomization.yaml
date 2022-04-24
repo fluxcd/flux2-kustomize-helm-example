@@ -6,5 +6,6 @@ resources:
   - ../base/schedule
   - ../base/oden
   - ../base/skool
+  - extraction.yaml
 patchesStrategicMerge:
   - skool.yaml
