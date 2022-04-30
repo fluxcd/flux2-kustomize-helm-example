@@ -4,7 +4,6 @@ resources:
   - ../base/menu-proxy
   - ../base/opengraph
   - ../base/oden
-  - extraction.yaml
 patchesStrategicMerge:
   - menu-proxy.yaml
   - opengraph.yaml
