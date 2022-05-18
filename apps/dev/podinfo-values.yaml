@@ -1,0 +1,18 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: podinfo
+  namespace: podinfo
+spec:
+  chart:
+    spec:
+      version: ">=1.0.0-alpha"
+  test:
+    enable: false
+  values:
+    ingress:
+      hosts:
+        - host: podinfo.dev
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
