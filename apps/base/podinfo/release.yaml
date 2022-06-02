@@ -19,7 +19,7 @@ spec:
   # Default values
   # https://github.com/stefanprodan/podinfo/blob/master/charts/podinfo/values.yaml
   values:
-    cache: redis-master.redis:6379
+    cache: tcp://redis-master.redis:6379
     ingress:
       enabled: true
       annotations:
