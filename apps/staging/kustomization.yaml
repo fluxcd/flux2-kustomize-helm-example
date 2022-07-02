@@ -8,3 +8,4 @@ resources:
   - ../base/skool
 patchesStrategicMerge:
   - skool.yaml
+  - oden.yaml

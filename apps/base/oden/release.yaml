@@ -30,6 +30,8 @@ spec:
 
     munin:
       postgresSecretName: postgres
+      sentry:
+        dsn: https://91125dfae60745f8ad9ced1fe94f0d8a@o1205646.ingest.sentry.io/6336084
 
     meilisearch:
       service:
