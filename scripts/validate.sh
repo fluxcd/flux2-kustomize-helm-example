@@ -29,6 +29,7 @@
 # - kubeconform v0.4.12
 
 set -o errexit
+set -o pipefail
 
 echo "INFO - Downloading Flux OpenAPI schemas"
 mkdir -p /tmp/flux-crd-schemas/master-standalone-strict
