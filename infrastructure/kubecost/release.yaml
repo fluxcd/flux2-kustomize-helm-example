@@ -11,7 +11,7 @@ spec:
         kind: HelmRepository
         name: kubecost
         namespace: flux-system
-      version: 1.95.0
+      version: 1.94.3
   interval: 5m0s
   values:
     kubecostToken: aGVsbUBrdWJlY29zdC5jb20=xm343yadf98
