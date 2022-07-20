@@ -3,4 +3,4 @@ kind: Kustomization
 namespace: kubecost
 resources:
   - namespace.yaml
-  - helmrelease.yaml
+  - release.yaml
