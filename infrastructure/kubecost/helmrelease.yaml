@@ -1,0 +1,14 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: my-kubecost
+  namespace: kubecost
+spec:
+  chart:
+    spec:
+      chart: kubecost
+      sourceRef:
+        kind: HelmRepository
+        name: kubecost
+      version: 1.95.0
+  interval: 1m0s
