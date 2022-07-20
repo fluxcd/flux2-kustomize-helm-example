@@ -3,3 +3,4 @@ kind: Kustomization
 namespace: nginx
 resources:
   - release.yaml
+  - namespace.yaml
