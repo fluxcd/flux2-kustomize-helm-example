@@ -4,4 +4,4 @@ metadata:
   name: kubecost
 spec:
   interval: 5m0
-  url: https://kubecost.github.io/cost-analyzer/
+  url: https://kubecost.github.io/cost-analyzer
