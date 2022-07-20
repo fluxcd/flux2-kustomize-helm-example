@@ -11,17 +11,11 @@ spec:
         kind: HelmRepository
         name: bitnami
         namespace: flux-system
-      version: "11.3.4"
+      version: "16.x"
   interval: 1h0m0s
   install:
     remediation:
       retries: 3
-  # Default values
-  # https://github.com/bitnami/charts/blob/master/bitnami/redis/values.yaml
-  values:
-    usePassword: false
-    cluster:
-      enabled: false
-    master:
-      persistence:
-        enabled: false
+  valuesFrom:
+    - kind: ConfigMap
+      name: redis-values

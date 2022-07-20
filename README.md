@@ -1,6 +1,7 @@
 # flux2-kustomize-helm-example
 
 [![test](https://github.com/fluxcd/flux2-kustomize-helm-example/workflows/test/badge.svg)](https://github.com/fluxcd/flux2-kustomize-helm-example/actions)
+[![e2e](https://github.com/fluxcd/flux2-kustomize-helm-example/workflows/e2e/badge.svg)](https://github.com/fluxcd/flux2-kustomize-helm-example/actions)
 [![license](https://img.shields.io/github/license/fluxcd/flux2-kustomize-helm-example.svg)](https://github.com/fluxcd/flux2-kustomize-helm-example/blob/main/LICENSE)
 
 For this example we assume a scenario with two clusters: staging and production.
@@ -30,7 +31,7 @@ brew install fluxcd/tap/flux
 Or install the CLI by downloading precompiled binaries using a Bash script:
 
 ```sh
-curl -s https://toolkit.fluxcd.io/install.sh | sudo bash
+curl -s https://fluxcd.io/install.sh | sudo bash
 ```
 
 ## Repository structure
@@ -100,7 +101,6 @@ spec:
       enabled: true
       annotations:
         kubernetes.io/ingress.class: nginx
-      path: "/*"
 ```
 
 In **apps/staging/** dir we have a Kustomize patch with the staging specific values:
@@ -119,7 +119,7 @@ spec:
   values:
     ingress:
       hosts:
-        - podinfo.staging
+        - host: podinfo.staging
 ```
 
 Note that with ` version: ">=1.0.0-alpha"` we configure Flux to automatically upgrade
@@ -140,7 +140,7 @@ spec:
   values:
     ingress:
       hosts:
-        - podinfo.production
+        - host: podinfo.production
 ```
 
 Note that with ` version: ">=1.0.0"` we configure Flux to automatically upgrade
@@ -167,7 +167,7 @@ Infrastructure:
 In **infrastructure/sources/** dir we have the Helm repositories definitions:
 
 ```yaml
-apiVersion: source.toolkit.fluxcd.io/v1beta1
+apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
   name: podinfo
@@ -175,7 +175,7 @@ spec:
   interval: 5m
   url: https://stefanprodan.github.io/podinfo
 ---
-apiVersion: source.toolkit.fluxcd.io/v1beta1
+apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
   name: bitnami
@@ -204,7 +204,7 @@ The clusters dir contains the Flux configuration:
 In **clusters/staging/** dir we have the Kustomization definitions:
 
 ```yaml
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
   name: apps
@@ -215,12 +215,12 @@ spec:
     - name: infrastructure
   sourceRef:
     kind: GitRepository
-    name: flux-sytem
+    name: flux-system
   path: ./apps/staging
   prune: true
-  validation: client
+  wait: true
 ---
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
   name: infrastructure
@@ -231,6 +231,7 @@ spec:
     kind: GitRepository
     name: flux-system
   path: ./infrastructure
+  prune: true
 ```
 
 Note that with `path: ./apps/staging` we configure Flux to sync the staging Kustomize overlay and 
@@ -302,7 +303,7 @@ flux bootstrap github \
 Watch the production reconciliation:
 
 ```console
-$ watch flux get kustomizations
+$ flux get kustomizations --watch
 NAME          	REVISION                                        READY
 apps          	main/797cd90cc8e81feb30cfe471a5186b86daf2758d	True
 flux-system   	main/797cd90cc8e81feb30cfe471a5186b86daf2758d	True
@@ -370,7 +371,7 @@ resources:
 Enable decryption on your clusters by editing the `infrastructure.yaml` files:
 
 ```yaml
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
   name: infrastructure
@@ -389,7 +390,7 @@ Export the public key so anyone with access to the repository can encrypt secret
 gpg --export -a fluxcdbot@users.noreply.github.com > public.key
 ```
 
-Push the changes to main branch:
+Push the changes to the main branch:
 
 ```sh
 git add -A && git commit -m "add encrypted secret" && git push
@@ -421,7 +422,7 @@ spec:
 ```
 
 Find out more about Helm releases values overrides in the
-[docs](https://toolkit.fluxcd.io/components/helm/helmreleases/#values-overrides).
+[docs](https://fluxcd.io/docs/components/helm/helmreleases/#values-overrides).
 
 
 ## Add clusters
@@ -449,7 +450,7 @@ cp clusters/staging/apps.yaml clusters/dev
 You could create a dev overlay inside `apps`, make sure
 to change the `spec.path` inside `clusters/dev/apps.yaml` to `path: ./apps/dev`. 
 
-Push the changes to main branch:
+Push the changes to the main branch:
 
 ```sh
 git add -A && git commit -m "add dev cluster" && git push
@@ -466,3 +467,64 @@ flux bootstrap github \
     --personal \
     --path=clusters/dev
 ```
+
+## Identical environments
+
+If you want to spin up an identical environment, you can bootstrap a cluster
+e.g. `production-clone` and reuse the `production` definitions.
+
+Bootstrap the `production-clone` cluster:
+
+```sh
+flux bootstrap github \
+    --context=production-clone \
+    --owner=${GITHUB_USER} \
+    --repository=${GITHUB_REPO} \
+    --branch=main \
+    --personal \
+    --path=clusters/production-clone
+```
+
+Pull the changes locally:
+
+```sh
+git pull origin main
+```
+
+Create a `kustomization.yaml` inside the `clusters/production-clone` dir:
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - flux-system
+  - ../production/infrastructure.yaml
+  - ../production/apps.yaml
+```
+
+Note that besides the `flux-system` kustomize overlay, we also include
+the `infrastructure` and `apps` manifests from the production dir.
+
+Push the changes to the main branch:
+
+```sh
+git add -A && git commit -m "add production clone" && git push
+```
+
+Tell Flux to deploy the production workloads on the `production-clone` cluster:
+
+```sh
+flux reconcile kustomization flux-system \
+    --context=production-clone \
+    --with-source 
+```
+
+## Testing
+
+Any change to the Kubernetes manifests or to the repository structure should be validated in CI before
+a pull requests is merged into the main branch and synced on the cluster.
+
+This repository contains the following GitHub CI workflows:
+
+* the [test](./.github/workflows/test.yaml) workflow validates the Kubernetes manifests and Kustomize overlays with [kubeconform](https://github.com/yannh/kubeconform)
+* the [e2e](./.github/workflows/e2e.yaml) workflow starts a Kubernetes cluster in CI and tests the staging setup by running Flux in Kubernetes Kind

@@ -1,4 +1,4 @@
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
   name: apps
@@ -12,4 +12,5 @@ spec:
     name: flux-system
   path: ./apps/staging
   prune: true
-  validation: client
+  wait: true
+  timeout: 5m0s
