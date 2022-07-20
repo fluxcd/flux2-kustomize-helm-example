@@ -3,7 +3,7 @@ kind: HelmRelease
 metadata:
   name: kubecost
 spec:
-  releaseName: kubecost
+  releaseName: kubecost-analyzer
   chart:
     spec:
       chart: kubecost-analyzer
