@@ -3,5 +3,6 @@ kind: Kustomization
 namespace: flux-system
 resources:
   - bitnami.yaml
+  - bootstrap.yaml
   - podinfo.yaml
   - kubecosthelmrepo.yaml
