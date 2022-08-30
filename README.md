@@ -422,7 +422,7 @@ spec:
 ```
 
 Find out more about Helm releases values overrides in the
-[docs](https://fluxcd.io/docs/components/helm/helmreleases/#values-overrides).
+[docs](https://fluxcd.io/flux/components/helm/helmreleases/#values-overrides).
 
 
 ## Add clusters
