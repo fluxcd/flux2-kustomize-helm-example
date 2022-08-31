@@ -19,6 +19,7 @@ spec:
     smtp:
       secretName: auth1-smtp
     trustProxy: true
+    verificationUrl: https://skolorna.com/verify?token={token}
     ingress:
       className: kong
       enabled: true
