@@ -20,6 +20,9 @@ spec:
       secretName: auth1-smtp
     trustProxy: true
     verificationUrl: https://skolorna.com/verify?token={token}
+    sentry:
+      dsn: https://0bf37e159060422e80bfc36921b2ce3f@o1205646.ingest.sentry.io/6719411
+      environment: staging
     ingress:
       className: kong
       enabled: true
