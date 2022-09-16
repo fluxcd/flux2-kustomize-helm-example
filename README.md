@@ -167,7 +167,7 @@ Infrastructure:
 In **infrastructure/sources/** dir we have the Helm repositories definitions:
 
 ```yaml
-apiVersion: source.toolkit.fluxcd.io/v1beta1
+apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
   name: podinfo
@@ -175,7 +175,7 @@ spec:
   interval: 5m
   url: https://stefanprodan.github.io/podinfo
 ---
-apiVersion: source.toolkit.fluxcd.io/v1beta1
+apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
   name: bitnami
@@ -204,7 +204,7 @@ The clusters dir contains the Flux configuration:
 In **clusters/staging/** dir we have the Kustomization definitions:
 
 ```yaml
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
   name: apps
@@ -218,9 +218,9 @@ spec:
     name: flux-system
   path: ./apps/staging
   prune: true
-  validation: client
+  wait: true
 ---
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
   name: infrastructure
@@ -231,6 +231,7 @@ spec:
     kind: GitRepository
     name: flux-system
   path: ./infrastructure
+  prune: true
 ```
 
 Note that with `path: ./apps/staging` we configure Flux to sync the staging Kustomize overlay and 
@@ -302,7 +303,7 @@ flux bootstrap github \
 Watch the production reconciliation:
 
 ```console
-$ watch flux get kustomizations
+$ flux get kustomizations --watch
 NAME          	REVISION                                        READY
 apps          	main/797cd90cc8e81feb30cfe471a5186b86daf2758d	True
 flux-system   	main/797cd90cc8e81feb30cfe471a5186b86daf2758d	True
@@ -370,7 +371,7 @@ resources:
 Enable decryption on your clusters by editing the `infrastructure.yaml` files:
 
 ```yaml
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
   name: infrastructure
@@ -421,7 +422,7 @@ spec:
 ```
 
 Find out more about Helm releases values overrides in the
-[docs](https://toolkit.fluxcd.io/components/helm/helmreleases/#values-overrides).
+[docs](https://fluxcd.io/flux/components/helm/helmreleases/#values-overrides).
 
 
 ## Add clusters
@@ -525,5 +526,5 @@ a pull requests is merged into the main branch and synced on the cluster.
 
 This repository contains the following GitHub CI workflows:
 
-* the [test](./.github/workflows/test.yaml) workflow validates the Kubernetes manifests and Kustomize overlays with kubeval
+* the [test](./.github/workflows/test.yaml) workflow validates the Kubernetes manifests and Kustomize overlays with [kubeconform](https://github.com/yannh/kubeconform)
 * the [e2e](./.github/workflows/e2e.yaml) workflow starts a Kubernetes cluster in CI and tests the staging setup by running Flux in Kubernetes Kind
