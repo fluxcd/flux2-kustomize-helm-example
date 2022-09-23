@@ -4,3 +4,5 @@ namespace: flux-system
 resources:
   - bitnami.yaml
   - podinfo.yaml
+  - prometheus.yaml
+  - metrics-server.yaml

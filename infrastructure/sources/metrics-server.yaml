@@ -1,0 +1,7 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: metrics-server
+spec:
+  interval: 30m
+  url: https://kubernetes-sigs.github.io/metrics-server/
