@@ -4,3 +4,4 @@ resources:
   - sources
   - nginx
   - redis
+  - metrics-server
