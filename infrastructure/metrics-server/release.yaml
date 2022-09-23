@@ -16,3 +16,6 @@ spec:
   install:
     remediation:
       retries: 3
+  values:
+    args:
+      - --kubelet-insecure-tls
