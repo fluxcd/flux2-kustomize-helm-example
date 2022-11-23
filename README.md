@@ -4,7 +4,7 @@
 [![e2e](https://github.com/fluxcd/flux2-kustomize-helm-example/workflows/e2e/badge.svg)](https://github.com/fluxcd/flux2-kustomize-helm-example/actions)
 [![license](https://img.shields.io/github/license/fluxcd/flux2-kustomize-helm-example.svg)](https://github.com/fluxcd/flux2-kustomize-helm-example/blob/main/LICENSE)
 
-For this example we assume a scenario with two clusters: staging and production.
+For this example we assume a scenario with two clusters: dev and production.
 The end goal is to leverage Flux and Kustomize to manage both clusters while minimizing duplicated declarations.
 
 We will configure Flux to install, test and upgrade a demo app using
@@ -46,21 +46,21 @@ The Git repository contains the following top directories:
 ├── apps
 │   ├── base
 │   ├── production 
-│   └── staging
+│   └── dev
 ├── infrastructure
 │   ├── nginx
 │   ├── redis
 │   └── sources
 └── clusters
     ├── production
-    └── staging
+    └── dev
 ```
 
 The apps configuration is structured into:
 
 - **apps/base/** dir contains namespaces and Helm release definitions
 - **apps/production/** dir contains the production Helm release values
-- **apps/staging/** dir contains the staging values
+- **apps/dev/** dir contains the dev values
 
 ```
 ./apps/
@@ -72,7 +72,7 @@ The apps configuration is structured into:
 ├── production
 │   ├── kustomization.yaml
 │   └── podinfo-patch.yaml
-└── staging
+└── dev
     ├── kustomization.yaml
     └── podinfo-patch.yaml
 ```
@@ -103,7 +103,7 @@ spec:
         kubernetes.io/ingress.class: nginx
 ```
 
-In **apps/staging/** dir we have a Kustomize patch with the staging specific values:
+In **apps/dev/** dir we have a Kustomize patch with the dev specific values:
 
 ```yaml
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
@@ -119,7 +119,7 @@ spec:
   values:
     ingress:
       hosts:
-        - host: podinfo.staging
+        - host: podinfo.dev
 ```
 
 Note that with ` version: ">=1.0.0-alpha"` we configure Flux to automatically upgrade
@@ -187,7 +187,7 @@ spec:
 Note that with ` interval: 5m` we configure Flux to pull the Helm repository index every five minutes.
 If the index contains a new chart version that matches a `HelmRelease` semver range, Flux will upgrade the release.
 
-## Bootstrap staging and production
+## Bootstrap dev and production
 
 The clusters dir contains the Flux configuration:
 
@@ -196,12 +196,12 @@ The clusters dir contains the Flux configuration:
 ├── production
 │   ├── apps.yaml
 │   └── infrastructure.yaml
-└── staging
+└── dev
     ├── apps.yaml
     └── infrastructure.yaml
 ```
 
-In **clusters/staging/** dir we have the Kustomization definitions:
+In **clusters/dev/** dir we have the Kustomization definitions:
 
 ```yaml
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
@@ -216,7 +216,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./apps/staging
+  path: ./apps/dev
   prune: true
   wait: true
 ---
@@ -234,7 +234,7 @@ spec:
   prune: true
 ```
 
-Note that with `path: ./apps/staging` we configure Flux to sync the staging Kustomize overlay and 
+Note that with `path: ./apps/dev` we configure Flux to sync the dev Kustomize overlay and 
 with `dependsOn` we tell Flux to create the infrastructure items before deploying the apps.
 
 Fork this repository on your personal GitHub account and export your GitHub access token, username and repo name:
@@ -245,28 +245,28 @@ export GITHUB_USER=<your-username>
 export GITHUB_REPO=<repository-name>
 ```
 
-Verify that your staging cluster satisfies the prerequisites with:
+Verify that your dev cluster satisfies the prerequisites with:
 
 ```sh
 flux check --pre
 ```
 
-Set the kubectl context to your staging cluster and bootstrap Flux:
+Set the kubectl context to your dev cluster and bootstrap Flux:
 
 ```sh
 flux bootstrap github \
-    --context=staging \
+    --context=dev \
     --owner=${GITHUB_USER} \
     --repository=${GITHUB_REPO} \
     --branch=main \
     --personal \
-    --path=clusters/staging
+    --path=clusters/dev
 ```
 
-The bootstrap command commits the manifests for the Flux components in `clusters/staging/flux-system` dir
+The bootstrap command commits the manifests for the Flux components in `clusters/dev/flux-system` dir
 and creates a deploy key with read-only access on GitHub, so it can pull changes inside the cluster.
 
-Watch for the Helm releases being install on staging:
+Watch for the Helm releases being install on dev:
 
 ```console
 $ watch flux get helmreleases --all-namespaces 
@@ -281,7 +281,7 @@ Verify that the demo app can be accessed via ingress:
 ```console
 $ kubectl -n nginx port-forward svc/nginx-ingress-controller 8080:80 &
 
-$ curl -H "Host: podinfo.staging" http://localhost:8080
+$ curl -H "Host: podinfo.dev" http://localhost:8080
 {
   "hostname": "podinfo-59489db7b5-lmwpn",
   "version": "5.0.3"
@@ -399,7 +399,7 @@ git add -A && git commit -m "add encrypted secret" && git push
 Verify that the secret has been created in the `redis` namespace on both clusters:
 
 ```sh
-kubectl --context staging -n redis get secrets
+kubectl --context dev -n redis get secrets
 kubectl --context production -n redis get secrets
 ```
 
@@ -437,35 +437,35 @@ cd ${GITHUB_REPO}
 Create a dir inside `clusters` with your cluster name:
 
 ```sh
-mkdir -p clusters/dev
+mkdir -p clusters/uat
 ```
 
-Copy the sync manifests from staging:
+Copy the sync manifests from dev:
 
 ```sh
-cp clusters/staging/infrastructure.yaml clusters/dev
-cp clusters/staging/apps.yaml clusters/dev
+cp clusters/dev/infrastructure.yaml clusters/uat
+cp clusters/dev/apps.yaml clusters/uat
 ```
 
-You could create a dev overlay inside `apps`, make sure
-to change the `spec.path` inside `clusters/dev/apps.yaml` to `path: ./apps/dev`. 
+You could create a uat overlay inside `apps`, make sure
+to change the `spec.path` inside `clusters/uat/apps.yaml` to `path: ./apps/uat`. 
 
 Push the changes to the main branch:
 
 ```sh
-git add -A && git commit -m "add dev cluster" && git push
+git add -A && git commit -m "add uat cluster" && git push
 ```
 
-Set the kubectl context and path to your dev cluster and bootstrap Flux:
+Set the kubectl context and path to your uat cluster and bootstrap Flux:
 
 ```sh
 flux bootstrap github \
-    --context=dev \
+    --context=uat \
     --owner=${GITHUB_USER} \
     --repository=${GITHUB_REPO} \
     --branch=main \
     --personal \
-    --path=clusters/dev
+    --path=clusters/uat
 ```
 
 ## Identical environments
@@ -527,4 +527,4 @@ a pull requests is merged into the main branch and synced on the cluster.
 This repository contains the following GitHub CI workflows:
 
 * the [test](./.github/workflows/test.yaml) workflow validates the Kubernetes manifests and Kustomize overlays with [kubeconform](https://github.com/yannh/kubeconform)
-* the [e2e](./.github/workflows/e2e.yaml) workflow starts a Kubernetes cluster in CI and tests the staging setup by running Flux in Kubernetes Kind
+* the [e2e](./.github/workflows/e2e.yaml) workflow starts a Kubernetes cluster in CI and tests the dev setup by running Flux in Kubernetes Kind
