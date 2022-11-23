@@ -4,7 +4,7 @@
 [![e2e](https://github.com/fluxcd/flux2-kustomize-helm-example/workflows/e2e/badge.svg)](https://github.com/fluxcd/flux2-kustomize-helm-example/actions)
 [![license](https://img.shields.io/github/license/fluxcd/flux2-kustomize-helm-example.svg)](https://github.com/fluxcd/flux2-kustomize-helm-example/blob/main/LICENSE)
 
-For this example we assume a scenario with two clusters: dev and production.
+For this example we assume a scenario with two clusters: dev and staging.
 The end goal is to leverage Flux and Kustomize to manage both clusters while minimizing duplicated declarations.
 
 We will configure Flux to install, test and upgrade a demo app using
@@ -45,21 +45,21 @@ The Git repository contains the following top directories:
 ```
 ├── apps
 │   ├── base
-│   ├── production 
+│   ├── staging 
 │   └── dev
 ├── infrastructure
 │   ├── nginx
 │   ├── redis
 │   └── sources
 └── clusters
-    ├── production
+    ├── staging
     └── dev
 ```
 
 The apps configuration is structured into:
 
 - **apps/base/** dir contains namespaces and Helm release definitions
-- **apps/production/** dir contains the production Helm release values
+- **apps/staging/** dir contains the staging Helm release values
 - **apps/dev/** dir contains the dev values
 
 ```
@@ -69,7 +69,7 @@ The apps configuration is structured into:
 │       ├── kustomization.yaml
 │       ├── namespace.yaml
 │       └── release.yaml
-├── production
+├── staging
 │   ├── kustomization.yaml
 │   └── podinfo-patch.yaml
 └── dev
@@ -125,7 +125,7 @@ spec:
 Note that with ` version: ">=1.0.0-alpha"` we configure Flux to automatically upgrade
 the `HelmRelease` to the latest chart version including alpha, beta and pre-releases.
 
-In **apps/production/** dir we have a Kustomize patch with the production specific values:
+In **apps/staging/** dir we have a Kustomize patch with the staging specific values:
 
 ```yaml
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
@@ -140,7 +140,7 @@ spec:
   values:
     ingress:
       hosts:
-        - host: podinfo.production
+        - host: podinfo.staging
 ```
 
 Note that with ` version: ">=1.0.0"` we configure Flux to automatically upgrade
@@ -187,13 +187,13 @@ spec:
 Note that with ` interval: 5m` we configure Flux to pull the Helm repository index every five minutes.
 If the index contains a new chart version that matches a `HelmRelease` semver range, Flux will upgrade the release.
 
-## Bootstrap dev and production
+## Bootstrap dev and staging
 
 The clusters dir contains the Flux configuration:
 
 ```
 ./clusters/
-├── production
+├── staging
 │   ├── apps.yaml
 │   └── infrastructure.yaml
 └── dev
@@ -288,19 +288,19 @@ $ curl -H "Host: podinfo.dev" http://localhost:8080
 }
 ```
 
-Bootstrap Flux on production by setting the context and path to your production cluster:
+Bootstrap Flux on staging by setting the context and path to your staging cluster:
 
 ```sh
 flux bootstrap github \
-    --context=production \
+    --context=staging \
     --owner=${GITHUB_USER} \
     --repository=${GITHUB_REPO} \
     --branch=main \
     --personal \
-    --path=clusters/production
+    --path=clusters/staging
 ```
 
-Watch the production reconciliation:
+Watch the staging reconciliation:
 
 ```console
 $ flux get kustomizations --watch
@@ -400,7 +400,7 @@ Verify that the secret has been created in the `redis` namespace on both cluster
 
 ```sh
 kubectl --context dev -n redis get secrets
-kubectl --context production -n redis get secrets
+kubectl --context staging -n redis get secrets
 ```
 
 You can use Kubernetes secrets to provide values for your Helm releases:
@@ -471,18 +471,18 @@ flux bootstrap github \
 ## Identical environments
 
 If you want to spin up an identical environment, you can bootstrap a cluster
-e.g. `production-clone` and reuse the `production` definitions.
+e.g. `staging-clone` and reuse the `staging` definitions.
 
-Bootstrap the `production-clone` cluster:
+Bootstrap the `staging-clone` cluster:
 
 ```sh
 flux bootstrap github \
-    --context=production-clone \
+    --context=staging-clone \
     --owner=${GITHUB_USER} \
     --repository=${GITHUB_REPO} \
     --branch=main \
     --personal \
-    --path=clusters/production-clone
+    --path=clusters/staging-clone
 ```
 
 Pull the changes locally:
@@ -491,31 +491,31 @@ Pull the changes locally:
 git pull origin main
 ```
 
-Create a `kustomization.yaml` inside the `clusters/production-clone` dir:
+Create a `kustomization.yaml` inside the `clusters/staging-clone` dir:
 
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - flux-system
-  - ../production/infrastructure.yaml
-  - ../production/apps.yaml
+  - ../staging/infrastructure.yaml
+  - ../staging/apps.yaml
 ```
 
 Note that besides the `flux-system` kustomize overlay, we also include
-the `infrastructure` and `apps` manifests from the production dir.
+the `infrastructure` and `apps` manifests from the staging dir.
 
 Push the changes to the main branch:
 
 ```sh
-git add -A && git commit -m "add production clone" && git push
+git add -A && git commit -m "add staging clone" && git push
 ```
 
-Tell Flux to deploy the production workloads on the `production-clone` cluster:
+Tell Flux to deploy the staging workloads on the `staging-clone` cluster:
 
 ```sh
 flux reconcile kustomization flux-system \
-    --context=production-clone \
+    --context=staging-clone \
     --with-source 
 ```
 

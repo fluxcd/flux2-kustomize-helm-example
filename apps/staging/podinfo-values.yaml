@@ -10,7 +10,7 @@ spec:
   values:
     ingress:
       hosts:
-        - host: podinfo.production
+        - host: podinfo.staging
           paths:
             - path: /
               pathType: ImplementationSpecific
