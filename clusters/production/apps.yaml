@@ -1,3 +1,4 @@
+---
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
@@ -6,7 +7,7 @@ metadata:
 spec:
   interval: 10m0s
   dependsOn:
-    - name: infrastructure
+    - name: infra-configs
   sourceRef:
     kind: GitRepository
     name: flux-system

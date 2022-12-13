@@ -11,16 +11,17 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: podinfo
-        namespace: flux-system
-  interval: 5m
+  interval: 50m
   install:
     remediation:
       retries: 3
   # Default values
   # https://github.com/stefanprodan/podinfo/blob/master/charts/podinfo/values.yaml
   values:
-    cache: tcp://redis-master.redis:6379
+    redis:
+      enabled: true
+      repository: public.ecr.aws/docker/library/redis
+      tag: 7.0.6
     ingress:
       enabled: true
-      annotations:
-        kubernetes.io/ingress.class: nginx
+      className: nginx

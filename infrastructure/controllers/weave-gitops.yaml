@@ -1,0 +1,49 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: weave-gitops
+  namespace: flux-system
+spec:
+  type: oci
+  interval: 60m0s
+  url: oci://ghcr.io/weaveworks/charts
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: weave-gitops
+  namespace: flux-system
+spec:
+  interval: 60m
+  chart:
+    spec:
+      chart: weave-gitops
+      version: "*"
+      sourceRef:
+        kind: HelmRepository
+        name: weave-gitops
+      interval: 12h
+  # https://github.com/weaveworks/weave-gitops/blob/main/charts/gitops-server/values.yaml
+  values:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 1
+        memory: 512Mi
+    securityContext:
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      runAsUser: 1000
+    adminUser:
+      create: true
+      username: admin
+      # Change password by generating a new hash with:
+      # https://docs.gitops.weave.works/docs/configuration/securing-access-to-the-dashboard/#login-via-a-cluster-user-account
+      # bcrypt hash for password "flux"
+      passwordHash: "$2a$10$P/tHQ1DNFXdvX0zRGA8LPeSOyb0JXq9rP3fZ4W8HGTpLV7qHDlWhe"
