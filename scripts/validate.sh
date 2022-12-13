@@ -5,7 +5,7 @@
 # This script is meant to be run locally and in CI before the changes
 # are merged on the main branch that's synced by Flux.
 
-# Copyright 2020 The Flux authors. All rights reserved.
+# Copyright 2022 The Flux authors. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@
 # the branch synced by Flux in-cluster.
 
 # Prerequisites
-# - yq v4.6
-# - kustomize v4.1
-# - kubeconform v0.4.12
+# - yq v4.30
+# - kustomize v4.5
+# - kubeconform v0.5.0
 
 set -o errexit
 
