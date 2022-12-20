@@ -30,7 +30,7 @@ jobs:
           --url=${{ github.event.repository.html_url }} \
           --branch=${GITHUB_REF#refs/heads/} \
           --ignore-paths="./clusters/**/flux-system/" \
-          --git-implementation=libgit2
+          --git-implementation=libgit2 \
           --password=${{ secrets.GITHUB_TOKEN }}
           flux create kustomization flux-system \
           --source=flux-system \
