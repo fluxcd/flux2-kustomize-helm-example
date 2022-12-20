@@ -12,7 +12,7 @@ spec:
   values:
     ingress:
       hosts:
-        - host: podinfo.staging
+        - host: podinfo.dev.aurin-prod.cloud.edu.au
           paths:
             - path: /
               pathType: ImplementationSpecific
