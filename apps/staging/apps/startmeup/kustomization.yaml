@@ -4,14 +4,14 @@ kind: Kustomization
 namespace: startmeup-dev
 
 resources:
-  - ../base/startmeup/ns
-  - ../base/startmeup/app
-  - ../base/startmeup/db
-  - ../base/startmeup/pvc
-  - ../base/startmeup/secret
-  - ../base/startmeup/svc
-  - ../base/startmeup/ingress
-  - ../base/startmeup/configmap
+  - ../../../base/startmeup/ns
+  - ../../../base/startmeup/app
+  - ../../../base/startmeup/db
+  - ../../../base/startmeup/pvc
+  - ../../../base/startmeup/secret
+  - ../../../base/startmeup/svc
+  - ../../../base/startmeup/ingress
+  - ../../../base/startmeup/configmap
 patches:
   - target:
       kind: Ingress
