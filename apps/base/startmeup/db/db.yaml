@@ -1,0 +1,54 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: startmeup
+  name: startmeup-postgresql
+  labels:
+    app: startmeup
+spec:
+  selector:
+    matchLabels:
+      app: startmeup
+  strategy:
+    type: Recreate
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: startmeup
+    spec:
+      containers:
+        - name: startmeup-postgresql
+          image: postgres:14.5
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: 512Mi
+            limits:
+              memory: 8Gi
+          ports:
+            - containerPort: 5432
+          args: ["-c", "max_connections=1000", "-c", "shared_buffers=3GB"]
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: startmeup-secret
+                  key: FRUIT_DB_USERNAME
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: startmeup-secret
+                  key: FRUIT_DB_PASSWORD
+            - name: POSTGRES_DB
+              value: "postgres"
+            - name: PGDATA
+              value: /var/lib/postgresql/data/fruit_db/
+          volumeMounts:
+            - name: startmeup-pgsql-storage
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: startmeup-pgsql-storage
+          persistentVolumeClaim:
+            claimName: pgsql-pvc

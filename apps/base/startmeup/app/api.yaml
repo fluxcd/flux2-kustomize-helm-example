@@ -1,0 +1,55 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: startmeup
+  name: startmeup-api
+  labels:
+    app: startmeup
+spec:
+  selector:
+    matchLabels:
+      app: startmeup
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: startmeup
+    spec:
+      containers:
+        - name: startmeup-api
+          image: umeraltaf/startmeup:1.0.25-SNAPSHOT
+
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: 512Mi
+            limits:
+              memory: 4Gi
+          ports:
+            - containerPort: 8080
+          env:
+            - name: FRUIT_DB_HOST
+              value: "startmeup-postgresql"
+            - name: FRUIT_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: startmeup-secret
+                  key: FRUIT_DB_USERNAME
+            - name: FRUIT_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: startmeup-secret
+                  key: FRUIT_DB_PASSWORD
+            - name: FRUIT_DB_PORT
+              value: "5432"
+          volumeMounts:
+            - mountPath: /home/jboss/config.json
+              name: config-volume
+              subPath: config.json
+      volumes:
+        - name: config-volume
+          configMap:
+            name: json-config

@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: startmeup
+  name: startmeup-postgresql
+  labels:
+    app: startmeup
+spec:
+  selector:
+    app: startmeup
+  ports:
+    - name: pgsql
+      port: 5432
+      targetPort: 5432
