@@ -7,9 +7,9 @@ metadata:
   labels:
     app: startmeup
 spec:
-  storageClassName: default
+  storageClassName: csi-cinder-sc-delete
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 25Gi
+      storage: 10Gi
