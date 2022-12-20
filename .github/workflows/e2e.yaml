@@ -26,8 +26,8 @@ jobs:
       - name: Setup cluster reconciliation
         run: |
           flux create source git flux-system \
-          --token=${{ secrets.GITHUB_TOKEN }} \
-          --user=AURIN-OFFICE \
+          --username=AURIN-OFFICE \
+          --password=${{ secrets.GITHUB_TOKEN }} \
           --url=${{ github.event.repository.html_url }} \
           --branch=${GITHUB_REF#refs/heads/} \
           --ignore-paths="./clusters/**/flux-system/"
