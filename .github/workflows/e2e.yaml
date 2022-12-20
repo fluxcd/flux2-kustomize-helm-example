@@ -24,6 +24,9 @@ jobs:
       - name: Install Flux in Kubernetes Kind
         run: flux install
       - name: Setup cluster reconciliation
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USER: AURIN-OFFICE
         run: |
           flux create source git flux-system \
           --url=${{ github.event.repository.html_url }} \
