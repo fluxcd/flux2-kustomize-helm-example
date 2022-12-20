@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: json-config
+  namespace: default
+data:
+  config.json: |
+    {
+      "maxThreadCount": 10,
+      "trackerConfigs": [{
+        "url": "https://example1.com/",
+        "username": "username",
+        "password": "password",
+        "defaultLimit": 1
+      },
+        {
+          "url": "https://example2.com/",
+          "username": "username",
+          "password": "password",
+          "defaultLimit": 1
+        }
+      ],
+      "repoConfigs": [{
+        "url": "https://github.com/",
+        "username": "username",
+        "password": "password",
+        "type": "GITHUB"
+      }],
+      "streamConfigs": [{
+        "url": "https://example.com/master.json",
+        "type": "JSON"
+      }]
+    }

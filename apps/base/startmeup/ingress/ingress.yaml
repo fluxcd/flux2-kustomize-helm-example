@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: startmeup
+  name: startmeup
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt"
+
+spec:
+  tls:
+    - hosts:
+        - startmeup-env.host.com
+      secretName: startmeup-tls
+  rules:
+    - host: startmeup-env.host.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: startmeup-api
+                port:
+                  number: 80

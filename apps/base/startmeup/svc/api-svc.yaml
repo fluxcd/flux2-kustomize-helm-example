@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: startmeup
+  name: startmeup-api
+  labels:
+    app: startmeup
+spec:
+  type: ClusterIP
+  selector:
+    app: startmeup
+  ports:
+    - name: api
+      port: 80
+      targetPort: 8080
