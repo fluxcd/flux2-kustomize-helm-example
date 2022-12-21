@@ -35,5 +35,6 @@ spec:
     controller:
       service:
         type: "LoadBalancer"
+    externalTrafficPolicy: Cluster
     admissionWebhooks:
       enabled: false
