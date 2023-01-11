@@ -6,3 +6,4 @@ resources:
   - ingress-nginx.yaml
   - weave-gitops.yaml
   - external-dns.yaml
+  - external-secrets.yaml
