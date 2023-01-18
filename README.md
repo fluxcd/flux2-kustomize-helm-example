@@ -314,16 +314,16 @@ Watch for the Helm releases being installed on staging:
 $ watch flux get helmreleases --all-namespaces
 
 NAMESPACE    	NAME         	REVISION	SUSPENDED	READY	MESSAGE 
-cert-manager 	cert-manager 	v1.10.1 	False    	True 	Release reconciliation succeeded	
-flux-system  	weave-gitops 	4.0.9   	False    	True 	Release reconciliation succeeded	
-ingress-nginx	ingress-nginx	4.4.0   	False    	True 	Release reconciliation succeeded	
-podinfo      	podinfo      	6.2.3   	False    	True 	Release reconciliation succeeded
+cert-manager 	cert-manager 	v1.11.0 	False    	True 	Release reconciliation succeeded
+flux-system  	weave-gitops 	4.0.12   	False    	True 	Release reconciliation succeeded
+ingress-nginx	ingress-nginx	4.4.2   	False    	True 	Release reconciliation succeeded
+podinfo      	podinfo      	6.3.0   	False    	True 	Release reconciliation succeeded
 ```
 
 Verify that the demo app can be accessed via ingress:
 
 ```console
-$ kubectl -n nginx port-forward svc/nginx-ingress-controller 8080:80 &
+$ kubectl -n ingress-nginx port-forward svc/ingress-nginx-controller 8080:80 &
 
 $ curl -H "Host: podinfo.staging" http://localhost:8080
 {
@@ -364,7 +364,7 @@ To access the Flux UI on a cluster, first start port forwarding with:
 kubectl -n flux-system port-forward svc/weave-gitops 9001:9001
 ```
 
-Navigate to `http://localhost:9001` and login using the username `admin` and the password `flux`.
+Navigate to http://localhost:9001 and login using the username `admin` and the password `flux`.
 
 [Weave GitOps](https://docs.gitops.weave.works/) provides insights into your application deployments,
 and makes continuous delivery with Flux easier to adopt and scale across your teams.
