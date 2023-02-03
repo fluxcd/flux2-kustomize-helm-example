@@ -17,3 +17,23 @@ patches:
     target:
       kind: Deployment
       name: "(kustomize-controller|helm-controller|source-controller)"
+  - patch: |
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: all
+      spec:
+        template:
+          spec:
+            containers:
+              - name: manager
+                env:
+                  - name: "HTTPS_PROXY"
+                    value: "http://emea-aws-webproxy.service.cloud.local:3128"
+                  - name: "HTTP_PROXY"
+                    value: "http://emea-aws-webproxy.service.cloud.local:3128"
+                  - name: "NO_PROXY"
+                    value: "172.20.0.1/16,10.24.224.0/23,::1,localhost,127.0.0.1,169.254.169.254,.svc,.p223092157297.aws-emea.sanofi.com,192.168.0.0/16"      
+    target:
+      kind: Deployment
+      labelSelector: app.kubernetes.io/part-of=flux
