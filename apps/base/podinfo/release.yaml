@@ -18,6 +18,9 @@ spec:
   # Default values
   # https://github.com/stefanprodan/podinfo/blob/master/charts/podinfo/values.yaml
   values:
+    tls:
+      enabled: true
+      secretName: tls-secret
     redis:
       enabled: true
       repository: public.ecr.aws/docker/library/redis
