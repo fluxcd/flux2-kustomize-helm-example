@@ -46,4 +46,5 @@ spec:
       # Change password by generating a new hash with:
       # https://docs.gitops.weave.works/docs/configuration/securing-access-to-the-dashboard/#login-via-a-cluster-user-account
       # bcrypt hash for password "flux"
-      passwordHash: "$2a$10$P/tHQ1DNFXdvX0zRGA8LPeSOyb0JXq9rP3fZ4W8HGTpLV7qHDlWhe"
+      # passwordHash: "$2a$10$P/tHQ1DNFXdvX0zRGA8LPeSOyb0JXq9rP3fZ4W8HGTpLV7qHDlWhe"
+      passwordHash: "$2a$10$PkvZIO2cwszZK5c8K7IuW.4Mct7zmBZMby3DjE30uzW6ADb1qHrm6"

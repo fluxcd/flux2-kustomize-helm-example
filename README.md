@@ -4,27 +4,31 @@
 [![e2e](https://github.com/fluxcd/flux2-kustomize-helm-example/workflows/e2e/badge.svg)](https://github.com/fluxcd/flux2-kustomize-helm-example/actions)
 [![license](https://img.shields.io/github/license/fluxcd/flux2-kustomize-helm-example.svg)](https://github.com/fluxcd/flux2-kustomize-helm-example/blob/main/LICENSE)
 
-For this example we assume a scenario with two clusters: staging and production.
-The end goal is to leverage Flux and Kustomize to manage both clusters while minimizing duplicated declarations.
+For this example we assume a scenario with two clusters: staging and
+production.  The end goal is to leverage Flux and Kustomize to manage
+both clusters while minimizing duplicated declarations.
 
 We will configure Flux to install, test and upgrade a demo app using
-`HelmRepository` and `HelmRelease` custom resources.
-Flux will monitor the Helm repository, and it will automatically
-upgrade the Helm releases to their latest chart version based on semver ranges.
+`HelmRepository` and `HelmRelease` custom resources.  Flux will
+monitor the Helm repository, and it will automatically upgrade the
+Helm releases to their latest chart version based on semver ranges.
 
-![flux-ui-apps.png](.github/screens/flux-ui-apps.png)
+![flux-ui-apps.png](./.github/screens/flux-ui-apps.png)
 
-On each cluster, we'll install [Weave GitOps](https://docs.gitops.weave.works/) (an OSS UI for Flux)
-to visualise and monitor the workloads managed by Flux.
+On each cluster, we'll install [Weave
+GitOps](https://docs.gitops.weave.works/) (an OSS UI for Flux) to
+visualise and monitor the workloads managed by Flux.
 
 ## Prerequisites
 
-You will need a Kubernetes cluster version 1.21 or newer.
-For a quick local test, you can use [Kubernetes kind](https://kind.sigs.k8s.io/docs/user/quick-start/).
-Any other Kubernetes setup will work as well though.
+You will need a Kubernetes cluster version 1.21 or newer.  For a quick
+local test, you can use [Kubernetes
+kind](https://kind.sigs.k8s.io/docs/user/quick-start/).  Any other
+Kubernetes setup will work as well though.
 
 In order to follow the guide you'll need a GitHub account and a
-[personal access token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line)
+[personal access
+token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line)
 that can create repositories (check all permissions under `repo`).
 
 Install the Flux CLI on MacOS or Linux using Homebrew:
@@ -33,7 +37,8 @@ Install the Flux CLI on MacOS or Linux using Homebrew:
 brew install fluxcd/tap/flux
 ```
 
-Or install the CLI by downloading precompiled binaries using a Bash script:
+Or install the CLI by downloading precompiled binaries using a Bash
+script:
 
 ```sh
 curl -s https://fluxcd.io/install.sh | sudo bash
@@ -43,8 +48,10 @@ curl -s https://fluxcd.io/install.sh | sudo bash
 
 The Git repository contains the following top directories:
 
-- **apps** dir contains Helm releases with a custom configuration per cluster
-- **infrastructure** dir contains common infra tools such as ingress-nginx and cert-manager
+- **apps** dir contains Helm releases with a custom configuration per
+  cluster
+- **infrastructure** dir contains common infra tools such as
+  ingress-nginx and cert-manager
 - **clusters** dir contains the Flux configuration per cluster
 
 ```
@@ -364,12 +371,15 @@ To access the Flux UI on a cluster, first start port forwarding with:
 kubectl -n flux-system port-forward svc/weave-gitops 9001:9001
 ```
 
-Navigate to http://localhost:9001 and login using the username `admin` and the password `flux`.
+Navigate to http://localhost:9001 and login using the username `admin`
+and the password `flux`.
 
-[Weave GitOps](https://docs.gitops.weave.works/) provides insights into your application deployments,
-and makes continuous delivery with Flux easier to adopt and scale across your teams.
-The GUI provides a guided experience to build understanding and simplify getting started for new users;
-they can easily discover the relationship between Flux objects and navigate to deeper levels of information as required.
+[Weave GitOps](https://docs.gitops.weave.works/) provides insights
+into your application deployments, and makes continuous delivery with
+Flux easier to adopt and scale across your teams.  The GUI provides a
+guided experience to build understanding and simplify getting started
+for new users; they can easily discover the relationship between Flux
+objects and navigate to deeper levels of information as required.
 
 ![flux-ui-depends-on](.github/screens/flux-ui-depends-on.png)
 
