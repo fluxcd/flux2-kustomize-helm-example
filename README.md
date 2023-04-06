@@ -220,7 +220,7 @@ spec:
 In **clusters/production/infrastructure.yaml** we replace the Let's Encrypt server value to point to the production API:
 
 ```yaml
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: infra-configs
@@ -259,7 +259,7 @@ The clusters dir contains the Flux configuration:
 In **clusters/staging/** dir we have the Flux Kustomization definitions, for example:
 
 ```yaml
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: apps
