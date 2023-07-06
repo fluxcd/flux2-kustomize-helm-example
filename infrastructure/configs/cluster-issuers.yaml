@@ -6,7 +6,7 @@ metadata:
 spec:
   acme:
     # Replace the email address with your own contact email
-    email: fluxcdbot@users.noreply.github.com
+    email: 01.flakier_peer@icloud.com
     # The server is replaced in /clusters/production/infrastructure.yaml
     server: https://acme-staging-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
