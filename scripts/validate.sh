@@ -21,7 +21,7 @@
 
 # Prerequisites
 # - yq v4.34
-# - kustomize v5.0
+# - kustomize v5.3
 # - kubeconform v0.6
 
 set -o errexit

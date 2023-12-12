@@ -87,7 +87,7 @@ The apps configuration is structured into:
 In **apps/base/podinfo/** dir we have a Flux `HelmRelease` with common values for both clusters:
 
 ```yaml
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
   name: podinfo
@@ -111,7 +111,7 @@ spec:
 In **apps/staging/** dir we have a Kustomize patch with the staging specific values:
 
 ```yaml
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
   name: podinfo
@@ -133,7 +133,7 @@ the `HelmRelease` to the latest chart version including alpha, beta and pre-rele
 In **apps/production/** dir we have a Kustomize patch with the production specific values:
 
 ```yaml
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
   name: podinfo
@@ -174,7 +174,7 @@ The infrastructure is structured into:
 In **infrastructure/controllers/** dir we have the Flux `HelmRepository` and `HelmRelease` definitions such as:
 
 ```yaml
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
   name: cert-manager
@@ -376,7 +376,7 @@ they can easily discover the relationship between Flux objects and navigate to d
 You can change the admin password bcrypt hash in **infrastructure/controllers/weave-gitops.yaml**:
 
 ```yaml
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
   name: weave-gitops
