@@ -19,7 +19,7 @@ jobs:
         with:
           cluster_name: flux
       - name: Install Flux 0.31.1 in Kubernetes Kind
-        run: flux install --version=0.31.1
+        run: flux install --version=v0.31.1
       - name: Check flux resources
         run: |
           kubectl get all -n flux-system
