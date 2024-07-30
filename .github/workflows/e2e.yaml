@@ -37,6 +37,7 @@ jobs:
           --ignore-paths="clusters/**/flux-system/"
           flux create kustomization flux-system \
           --source=flux-system \
+          --prune=true \
           --path=./clusters/staging
       - name: Verify cluster reconciliation
         run: |
