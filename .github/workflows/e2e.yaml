@@ -20,6 +20,8 @@ jobs:
           cluster_name: flux
       - name: Install Flux in Kubernetes Kind
         run: flux install
+      - name: Check flux resources
+        run: kubectl get deployments -n flux-system -o yaml
       - name: Setup cluster reconciliation
         run: |
           flux create source git flux-system \
