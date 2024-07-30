@@ -13,7 +13,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup Flux
-        uses: fluxcd/flux2/action@v0.31.1
+        uses: fluxcd/flux2/action@main
+        with:
+          version: '0.31.1'
       - name: Setup Kubernetes
         uses: helm/kind-action@v1.7.0
         with:
