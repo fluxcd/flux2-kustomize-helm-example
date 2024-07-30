@@ -41,6 +41,7 @@ jobs:
           --path=./clusters/staging
       - name: Display podinfo pods
         run: |
+          sleep 30
           kubectl get pods -n podinfo
           helm list --namespace podinfo
       - name: Install Flux latest in Kubernetes Kind
