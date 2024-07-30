@@ -18,10 +18,13 @@ jobs:
         uses: helm/kind-action@v1.7.0
         with:
           cluster_name: flux
-      - name: Install Flux in Kubernetes Kind
-        run: flux install
+      - name: Install Flux 0.31.1 in Kubernetes Kind
+        run: flux install --version=0.31.1
       - name: Check flux resources
-        run: kubectl get deployments -n flux-system -o yaml
+        run: |
+          kubectl get all -n flux-system
+          kubectl get deployments -n flux-system -o jsonpath="{range .items[*]}{.metadata.name}:{range .spec.template.spec.containers[*]}{.image}{'\n'}{end}{end}"
+          kubectl get crds -A
       - name: Setup cluster reconciliation
         run: |
           flux create source git flux-system \
@@ -40,6 +43,21 @@ jobs:
       - name: Verify helm reconciliation
         run: |
           kubectl -n podinfo wait helmrelease/podinfo --for=condition=ready --timeout=5m
+      - name: Display podinfo pods
+        run: |
+          kubectl get pods -n podinfo
+          helm list --namespace podinfo
+      - name: Install Flux latest in Kubernetes Kind
+        run: flux install
+      - name: Check flux resources
+        run: |
+          kubectl get all -n flux-system
+          kubectl get deployments -n flux-system -o jsonpath="{range .items[*]}{.metadata.name}:{range .spec.template.spec.containers[*]}{.image}{'\n'}{end}{end}"
+          kubectl get crds -A
+      - name: Display podinfo pods after flux upgrade
+        run: |
+          kubectl get pods -n podinfo
+          helm list --namespace podinfo  
       - name: Debug failure
         if: failure()
         run: |
