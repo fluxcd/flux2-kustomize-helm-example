@@ -1,0 +1,505 @@
+apiVersion: v1
+items:
+- apiVersion: source.toolkit.fluxcd.io/v1
+  kind: GitRepository
+  metadata:
+    creationTimestamp: "2024-08-06T16:47:43Z"
+    finalizers:
+    - finalizers.fluxcd.io
+    generation: 1
+    labels:
+      kustomize.toolkit.fluxcd.io/name: flux-system
+      kustomize.toolkit.fluxcd.io/namespace: flux-system
+      toolkit.fluxcd.io/tenant: sre-team
+    name: flux-system
+    namespace: flux-system
+    resourceVersion: "317464"
+    uid: e3b7f22a-5d81-4aaf-ad4c-09f2d1d0f73d
+  spec:
+    interval: 1m0s
+    ref:
+      branch: main
+    secretRef:
+      name: flux-system
+    timeout: 60s
+    url: ssh://git@github.com/poornima-krishnasamy/flux2-kustomize-helm-example
+  status:
+    artifact:
+      digest: sha256:72ef0bc0deda24845a79d4362859b6bec190029f3ad600d1c7aaa28fb37d68f8
+      lastUpdateTime: "2024-08-06T16:58:41Z"
+      path: gitrepository/flux-system/flux-system/d48d617a72e89152c742c01ead1d55ddaae4d0ab.tar.gz
+      revision: main@sha1:d48d617a72e89152c742c01ead1d55ddaae4d0ab
+      size: 61966
+      url: http://source-controller.flux-system.svc.cluster.local./gitrepository/flux-system/flux-system/d48d617a72e89152c742c01ead1d55ddaae4d0ab.tar.gz
+    conditions:
+    - lastTransitionTime: "2024-08-06T16:58:41Z"
+      message: stored artifact for revision 'main@sha1:d48d617a72e89152c742c01ead1d55ddaae4d0ab'
+      observedGeneration: 1
+      reason: Succeeded
+      status: "True"
+      type: Ready
+    - lastTransitionTime: "2024-08-06T16:58:41Z"
+      message: stored artifact for revision 'main@sha1:d48d617a72e89152c742c01ead1d55ddaae4d0ab'
+      observedGeneration: 1
+      reason: Succeeded
+      status: "True"
+      type: ArtifactInStorage
+    observedGeneration: 1
+- apiVersion: kustomize.toolkit.fluxcd.io/v1
+  kind: Kustomization
+  metadata:
+    creationTimestamp: "2024-08-06T16:47:47Z"
+    finalizers:
+    - finalizers.fluxcd.io
+    generation: 1
+    labels:
+      kustomize.toolkit.fluxcd.io/name: flux-system
+      kustomize.toolkit.fluxcd.io/namespace: flux-system
+    name: apps
+    namespace: flux-system
+    resourceVersion: "321960"
+    uid: 2cbd64dd-c777-4126-8dcc-607825f6b0fb
+  spec:
+    dependsOn:
+    - name: infra-configs
+    force: false
+    interval: 10m0s
+    path: ./apps/staging
+    prune: true
+    sourceRef:
+      kind: GitRepository
+      name: flux-system
+  status:
+    conditions:
+    - lastTransitionTime: "2024-08-06T17:19:13Z"
+      message: 'Applied revision: main@sha1:d48d617a72e89152c742c01ead1d55ddaae4d0ab'
+      observedGeneration: 1
+      reason: ReconciliationSucceeded
+      status: "True"
+      type: Ready
+    inventory:
+      entries:
+      - id: _podinfo__Namespace
+        v: v1
+      - id: podinfo_podinfo_helm.toolkit.fluxcd.io_HelmRelease
+        v: v2
+      - id: podinfo_podinfo_source.toolkit.fluxcd.io_HelmRepository
+        v: v1
+    lastAppliedRevision: main@sha1:d48d617a72e89152c742c01ead1d55ddaae4d0ab
+    lastAttemptedRevision: main@sha1:d48d617a72e89152c742c01ead1d55ddaae4d0ab
+    observedGeneration: 1
+- apiVersion: kustomize.toolkit.fluxcd.io/v1
+  kind: Kustomization
+  metadata:
+    creationTimestamp: "2024-08-06T16:47:43Z"
+    finalizers:
+    - finalizers.fluxcd.io
+    generation: 1
+    labels:
+      kustomize.toolkit.fluxcd.io/name: flux-system
+      kustomize.toolkit.fluxcd.io/namespace: flux-system
+      toolkit.fluxcd.io/tenant: sre-team
+    name: flux-system
+    namespace: flux-system
+    resourceVersion: "321818"
+    uid: 08a992e2-ff2e-44f8-8a72-02ea4d21f299
+  spec:
+    force: false
+    interval: 10m0s
+    path: ./clusters/staging
+    prune: true
+    sourceRef:
+      kind: GitRepository
+      name: flux-system
+  status:
+    conditions:
+    - lastTransitionTime: "2024-08-06T17:18:31Z"
+      message: 'Applied revision: main@sha1:d48d617a72e89152c742c01ead1d55ddaae4d0ab'
+      observedGeneration: 1
+      reason: ReconciliationSucceeded
+      status: "True"
+      type: Ready
+    inventory:
+      entries:
+      - id: _alerts.notification.toolkit.fluxcd.io_apiextensions.k8s.io_CustomResourceDefinition
+        v: v1
+      - id: _buckets.source.toolkit.fluxcd.io_apiextensions.k8s.io_CustomResourceDefinition
+        v: v1
+      - id: _gitrepositories.source.toolkit.fluxcd.io_apiextensions.k8s.io_CustomResourceDefinition
+        v: v1
+      - id: _helmcharts.source.toolkit.fluxcd.io_apiextensions.k8s.io_CustomResourceDefinition
+        v: v1
+      - id: _helmreleases.helm.toolkit.fluxcd.io_apiextensions.k8s.io_CustomResourceDefinition
+        v: v1
+      - id: _helmrepositories.source.toolkit.fluxcd.io_apiextensions.k8s.io_CustomResourceDefinition
+        v: v1
+      - id: _kustomizations.kustomize.toolkit.fluxcd.io_apiextensions.k8s.io_CustomResourceDefinition
+        v: v1
+      - id: _ocirepositories.source.toolkit.fluxcd.io_apiextensions.k8s.io_CustomResourceDefinition
+        v: v1
+      - id: _providers.notification.toolkit.fluxcd.io_apiextensions.k8s.io_CustomResourceDefinition
+        v: v1
+      - id: _receivers.notification.toolkit.fluxcd.io_apiextensions.k8s.io_CustomResourceDefinition
+        v: v1
+      - id: _flux-system__Namespace
+        v: v1
+      - id: flux-system_critical-pods-flux-system__ResourceQuota
+        v: v1
+      - id: flux-system_helm-controller__ServiceAccount
+        v: v1
+      - id: flux-system_kustomize-controller__ServiceAccount
+        v: v1
+      - id: flux-system_notification-controller__ServiceAccount
+        v: v1
+      - id: flux-system_source-controller__ServiceAccount
+        v: v1
+      - id: _crd-controller-flux-system_rbac.authorization.k8s.io_ClusterRole
+        v: v1
+      - id: _flux-edit-flux-system_rbac.authorization.k8s.io_ClusterRole
+        v: v1
+      - id: _flux-view-flux-system_rbac.authorization.k8s.io_ClusterRole
+        v: v1
+      - id: _cluster-reconciler-flux-system_rbac.authorization.k8s.io_ClusterRoleBinding
+        v: v1
+      - id: _crd-controller-flux-system_rbac.authorization.k8s.io_ClusterRoleBinding
+        v: v1
+      - id: flux-system_notification-controller__Service
+        v: v1
+      - id: flux-system_source-controller__Service
+        v: v1
+      - id: flux-system_webhook-receiver__Service
+        v: v1
+      - id: flux-system_helm-controller_apps_Deployment
+        v: v1
+      - id: flux-system_kustomize-controller_apps_Deployment
+        v: v1
+      - id: flux-system_notification-controller_apps_Deployment
+        v: v1
+      - id: flux-system_source-controller_apps_Deployment
+        v: v1
+      - id: flux-system_apps_kustomize.toolkit.fluxcd.io_Kustomization
+        v: v1beta1
+      - id: flux-system_flux-system_kustomize.toolkit.fluxcd.io_Kustomization
+        v: v1
+      - id: flux-system_infra-configs_kustomize.toolkit.fluxcd.io_Kustomization
+        v: v1beta1
+      - id: flux-system_infra-controllers_kustomize.toolkit.fluxcd.io_Kustomization
+        v: v1beta1
+      - id: flux-system_allow-egress_networking.k8s.io_NetworkPolicy
+        v: v1
+      - id: flux-system_allow-scraping_networking.k8s.io_NetworkPolicy
+        v: v1
+      - id: flux-system_allow-webhooks_networking.k8s.io_NetworkPolicy
+        v: v1
+      - id: flux-system_flux-system_source.toolkit.fluxcd.io_GitRepository
+        v: v1
+    lastAppliedRevision: main@sha1:d48d617a72e89152c742c01ead1d55ddaae4d0ab
+    lastAttemptedRevision: main@sha1:d48d617a72e89152c742c01ead1d55ddaae4d0ab
+    observedGeneration: 1
+- apiVersion: kustomize.toolkit.fluxcd.io/v1
+  kind: Kustomization
+  metadata:
+    creationTimestamp: "2024-08-06T16:47:47Z"
+    finalizers:
+    - finalizers.fluxcd.io
+    generation: 1
+    labels:
+      kustomize.toolkit.fluxcd.io/name: flux-system
+      kustomize.toolkit.fluxcd.io/namespace: flux-system
+    name: infra-configs
+    namespace: flux-system
+    resourceVersion: "318107"
+    uid: d5da2952-a893-4c4a-b64b-d6c22ebae53f
+  spec:
+    dependsOn:
+    - name: infra-controllers
+    force: false
+    interval: 1h
+    patches:
+    - patch: |
+        - op: replace
+          path: /spec/acme/server
+          value: https://acme-staging-v02.api.letsencrypt.org/directory
+      target:
+        kind: ClusterIssuer
+        name: letsencrypt
+    path: ./infrastructure/configs
+    prune: true
+    retryInterval: 1m
+    sourceRef:
+      kind: GitRepository
+      name: flux-system
+    timeout: 5m
+  status:
+    conditions:
+    - lastTransitionTime: "2024-08-06T16:59:53Z"
+      message: 'Applied revision: main@sha1:d48d617a72e89152c742c01ead1d55ddaae4d0ab'
+      observedGeneration: 1
+      reason: ReconciliationSucceeded
+      status: "True"
+      type: Ready
+    inventory:
+      entries:
+      - id: _letsencrypt_cert-manager.io_ClusterIssuer
+        v: v1
+    lastAppliedRevision: main@sha1:d48d617a72e89152c742c01ead1d55ddaae4d0ab
+    lastAttemptedRevision: main@sha1:d48d617a72e89152c742c01ead1d55ddaae4d0ab
+    observedGeneration: 1
+- apiVersion: kustomize.toolkit.fluxcd.io/v1
+  kind: Kustomization
+  metadata:
+    creationTimestamp: "2024-08-06T16:47:47Z"
+    finalizers:
+    - finalizers.fluxcd.io
+    generation: 1
+    labels:
+      kustomize.toolkit.fluxcd.io/name: flux-system
+      kustomize.toolkit.fluxcd.io/namespace: flux-system
+    name: infra-controllers
+    namespace: flux-system
+    resourceVersion: "317508"
+    uid: 6b7a63ba-2225-4e84-a98a-85b47c689b8b
+  spec:
+    force: false
+    interval: 1h
+    path: ./infrastructure/controllers
+    prune: true
+    retryInterval: 1m
+    sourceRef:
+      kind: GitRepository
+      name: flux-system
+    timeout: 5m
+  status:
+    conditions:
+    - lastTransitionTime: "2024-08-06T16:58:48Z"
+      message: 'Applied revision: main@sha1:d48d617a72e89152c742c01ead1d55ddaae4d0ab'
+      observedGeneration: 1
+      reason: ReconciliationSucceeded
+      status: "True"
+      type: Ready
+    inventory:
+      entries:
+      - id: _cert-manager__Namespace
+        v: v1
+      - id: _ingress-nginx__Namespace
+        v: v1
+      - id: cert-manager_cert-manager_helm.toolkit.fluxcd.io_HelmRelease
+        v: v2
+      - id: ingress-nginx_ingress-nginx_helm.toolkit.fluxcd.io_HelmRelease
+        v: v2
+      - id: cert-manager_cert-manager_source.toolkit.fluxcd.io_HelmRepository
+        v: v1
+      - id: ingress-nginx_ingress-nginx_source.toolkit.fluxcd.io_HelmRepository
+        v: v1
+    lastAppliedRevision: main@sha1:d48d617a72e89152c742c01ead1d55ddaae4d0ab
+    lastAttemptedRevision: main@sha1:d48d617a72e89152c742c01ead1d55ddaae4d0ab
+    observedGeneration: 1
+- apiVersion: helm.toolkit.fluxcd.io/v2
+  kind: HelmRelease
+  metadata:
+    creationTimestamp: "2024-08-06T16:58:47Z"
+    finalizers:
+    - finalizers.fluxcd.io
+    generation: 1
+    labels:
+      kustomize.toolkit.fluxcd.io/name: infra-controllers
+      kustomize.toolkit.fluxcd.io/namespace: flux-system
+    name: cert-manager
+    namespace: cert-manager
+    resourceVersion: "317899"
+    uid: 1ce891c1-5fa1-43e1-80a7-ac2e5c496d10
+  spec:
+    chart:
+      spec:
+        chart: cert-manager
+        interval: 12h
+        reconcileStrategy: ChartVersion
+        sourceRef:
+          kind: HelmRepository
+          name: cert-manager
+          namespace: cert-manager
+        version: 1.x
+    interval: 30m
+    values:
+      installCRDs: true
+  status:
+    conditions:
+    - lastTransitionTime: "2024-08-06T16:59:12Z"
+      message: Helm install succeeded for release cert-manager/cert-manager.v1 with
+        chart cert-manager@v1.15.2
+      observedGeneration: 1
+      reason: InstallSucceeded
+      status: "True"
+      type: Ready
+    - lastTransitionTime: "2024-08-06T16:59:12Z"
+      message: Helm install succeeded for release cert-manager/cert-manager.v1 with
+        chart cert-manager@v1.15.2
+      observedGeneration: 1
+      reason: InstallSucceeded
+      status: "True"
+      type: Released
+    helmChart: cert-manager/cert-manager-cert-manager
+    history:
+    - appVersion: v1.15.2
+      chartName: cert-manager
+      chartVersion: v1.15.2
+      configDigest: sha256:aa931a27f90e0e75c28b725b9c3b283abbbbf67e80140f3e1ad7a46f379d518d
+      digest: sha256:7c081d41c04faf9c4db3e47ca853c123d0eaca93a31728385f2771bcc63e4dcf
+      firstDeployed: "2024-08-06T16:58:49Z"
+      lastDeployed: "2024-08-06T16:58:49Z"
+      name: cert-manager
+      namespace: cert-manager
+      status: deployed
+      version: 1
+    lastAttemptedConfigDigest: sha256:aa931a27f90e0e75c28b725b9c3b283abbbbf67e80140f3e1ad7a46f379d518d
+    lastAttemptedGeneration: 1
+    lastAttemptedReleaseAction: install
+    lastAttemptedRevision: v1.15.2
+    observedGeneration: 1
+    storageNamespace: cert-manager
+- apiVersion: helm.toolkit.fluxcd.io/v2
+  kind: HelmRelease
+  metadata:
+    creationTimestamp: "2024-08-06T16:58:47Z"
+    finalizers:
+    - finalizers.fluxcd.io
+    generation: 1
+    labels:
+      kustomize.toolkit.fluxcd.io/name: infra-controllers
+      kustomize.toolkit.fluxcd.io/namespace: flux-system
+    name: ingress-nginx
+    namespace: ingress-nginx
+    resourceVersion: "318072"
+    uid: cafb4ef3-ff0c-48bb-9438-1b218d61537f
+  spec:
+    chart:
+      spec:
+        chart: ingress-nginx
+        interval: 12h
+        reconcileStrategy: ChartVersion
+        sourceRef:
+          kind: HelmRepository
+          name: ingress-nginx
+          namespace: ingress-nginx
+        version: '*'
+    interval: 30m
+    values:
+      admissionWebhooks:
+        enabled: false
+      controller:
+        service:
+          type: NodePort
+  status:
+    conditions:
+    - lastTransitionTime: "2024-08-06T16:59:44Z"
+      message: Helm install succeeded for release ingress-nginx/ingress-nginx.v1 with
+        chart ingress-nginx@4.11.1
+      observedGeneration: 1
+      reason: InstallSucceeded
+      status: "True"
+      type: Ready
+    - lastTransitionTime: "2024-08-06T16:59:44Z"
+      message: Helm install succeeded for release ingress-nginx/ingress-nginx.v1 with
+        chart ingress-nginx@4.11.1
+      observedGeneration: 1
+      reason: InstallSucceeded
+      status: "True"
+      type: Released
+    helmChart: ingress-nginx/ingress-nginx-ingress-nginx
+    history:
+    - appVersion: 1.11.1
+      chartName: ingress-nginx
+      chartVersion: 4.11.1
+      configDigest: sha256:3953db82d5784472d1d7c2043fb0d8004d5927ae7a04dd39e89a0ddb752392ec
+      digest: sha256:3d1319752356803285453536f17a02113295a8a8fc41ddb8c2cfa317645b6829
+      firstDeployed: "2024-08-06T16:58:49Z"
+      lastDeployed: "2024-08-06T16:58:49Z"
+      name: ingress-nginx
+      namespace: ingress-nginx
+      status: deployed
+      version: 1
+    lastAttemptedConfigDigest: sha256:3953db82d5784472d1d7c2043fb0d8004d5927ae7a04dd39e89a0ddb752392ec
+    lastAttemptedGeneration: 1
+    lastAttemptedReleaseAction: install
+    lastAttemptedRevision: 4.11.1
+    observedGeneration: 1
+    storageNamespace: ingress-nginx
+- apiVersion: helm.toolkit.fluxcd.io/v2
+  kind: HelmRelease
+  metadata:
+    creationTimestamp: "2024-08-06T16:59:58Z"
+    finalizers:
+    - finalizers.fluxcd.io
+    generation: 1
+    labels:
+      kustomize.toolkit.fluxcd.io/name: apps
+      kustomize.toolkit.fluxcd.io/namespace: flux-system
+    name: podinfo
+    namespace: podinfo
+    resourceVersion: "318308"
+    uid: 4a1311ca-23de-4059-9eba-f2fbf2935c2b
+  spec:
+    chart:
+      spec:
+        chart: podinfo
+        reconcileStrategy: ChartVersion
+        sourceRef:
+          kind: HelmRepository
+          name: podinfo
+        version: '>=1.0.0-alpha'
+    install:
+      remediation:
+        retries: 3
+    interval: 50m
+    releaseName: podinfo
+    test:
+      enable: false
+    values:
+      ingress:
+        className: nginx
+        enabled: true
+        hosts:
+        - host: podinfo.staging
+          paths:
+          - path: /
+            pathType: ImplementationSpecific
+      redis:
+        enabled: true
+        repository: public.ecr.aws/docker/library/redis
+        tag: 7.0.6
+  status:
+    conditions:
+    - lastTransitionTime: "2024-08-06T17:00:21Z"
+      message: Helm install succeeded for release podinfo/podinfo.v1 with chart podinfo@6.7.0
+      observedGeneration: 1
+      reason: InstallSucceeded
+      status: "True"
+      type: Ready
+    - lastTransitionTime: "2024-08-06T17:00:21Z"
+      message: Helm install succeeded for release podinfo/podinfo.v1 with chart podinfo@6.7.0
+      observedGeneration: 1
+      reason: InstallSucceeded
+      status: "True"
+      type: Released
+    helmChart: podinfo/podinfo-podinfo
+    history:
+    - appVersion: 6.7.0
+      chartName: podinfo
+      chartVersion: 6.7.0
+      configDigest: sha256:3a6a32b542c7011e7e646c9241c64441fe3b01b276756d3ee2b6bccbc934de30
+      digest: sha256:15ef94fea9ad3db545cc09ca77219c9291b5f5f1e06cc189d8d490cb6473d741
+      firstDeployed: "2024-08-06T16:59:59Z"
+      lastDeployed: "2024-08-06T16:59:59Z"
+      name: podinfo
+      namespace: podinfo
+      status: deployed
+      version: 1
+    lastAttemptedConfigDigest: sha256:3a6a32b542c7011e7e646c9241c64441fe3b01b276756d3ee2b6bccbc934de30
+    lastAttemptedGeneration: 1
+    lastAttemptedReleaseAction: install
+    lastAttemptedRevision: 6.7.0
+    observedGeneration: 1
+    storageNamespace: podinfo
+kind: List
+metadata:
+  resourceVersion: ""
