@@ -32,4 +32,6 @@ spec:
         namespace: cert-manager
       interval: 12h
   values:
-    installCRDs: true
+    crds:
+      enabled: true
+      keep: false
