@@ -21,7 +21,18 @@ metadata:
   name: ingress-nginx
   namespace: ingress-nginx
 spec:
-  interval: 30m
+  dependsOn:
+    - name: cert-manager
+      namespace: cert-manager
+  interval: 12h
+  install:
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 2m
+  upgrade:
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 3m
   chart:
     spec:
       chart: ingress-nginx
@@ -33,7 +44,8 @@ spec:
       interval: 12h
   values:
     controller:
+      admissionWebhooks:
+        certManager:
+          enabled: true
       service:
         type: "NodePort"
-    admissionWebhooks:
-      enabled: false

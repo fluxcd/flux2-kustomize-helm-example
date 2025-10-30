@@ -5,13 +5,14 @@ metadata:
   name: apps
   namespace: flux-system
 spec:
-  interval: 10m0s
   dependsOn:
     - name: infra-configs
+  interval: 1h
+  retryInterval: 2m
+  timeout: 5m
   sourceRef:
-    kind: GitRepository
-    name: flux-system
-  path: ./apps/production
+    kind: ExternalArtifact
+    name: apps
+  path: ./production
   prune: true
   wait: true
-  timeout: 5m0s

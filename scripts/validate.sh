@@ -20,9 +20,9 @@
 # limitations under the License.
 
 # Prerequisites
-# - yq v4.34
-# - kustomize v5.3
-# - kubeconform v0.6
+# - yq v4.48
+# - kustomize v5.7
+# - kubeconform v0.7
 
 set -o errexit
 set -o pipefail

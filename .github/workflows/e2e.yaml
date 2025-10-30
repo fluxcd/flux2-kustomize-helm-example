@@ -11,15 +11,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
       - name: Setup Flux
         uses: fluxcd/flux2/action@main
       - name: Setup Kubernetes
-        uses: helm/kind-action@v1.7.0
+        uses: helm/kind-action@v1.12.0
         with:
           cluster_name: flux
+          version: v0.30.0
+          node_image: kindest/node:v1.33.4
       - name: Install Flux in Kubernetes Kind
-        run: flux install
+        run: flux install --components-extra source-watcher
       - name: Setup cluster reconciliation
         run: |
           flux create source git flux-system \
@@ -38,6 +40,8 @@ jobs:
       - name: Verify helm reconciliation
         run: |
           kubectl -n podinfo wait helmrelease/podinfo --for=condition=ready --timeout=5m
+      - name: List deployed resources
+        run: flux tree ks flux-system
       - name: Debug failure
         if: failure()
         run: |

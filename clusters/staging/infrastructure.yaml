@@ -6,12 +6,12 @@ metadata:
   namespace: flux-system
 spec:
   interval: 1h
-  retryInterval: 1m
+  retryInterval: 2m
   timeout: 5m
   sourceRef:
-    kind: GitRepository
-    name: flux-system
-  path: ./infrastructure/controllers
+    kind: ExternalArtifact
+    name: infrastructure
+  path: ./controllers
   prune: true
   wait: true
 ---
@@ -24,12 +24,12 @@ spec:
   dependsOn:
     - name: infra-controllers
   interval: 1h
-  retryInterval: 1m
+  retryInterval: 2m
   timeout: 5m
   sourceRef:
-    kind: GitRepository
-    name: flux-system
-  path: ./infrastructure/configs
+    kind: ExternalArtifact
+    name: infrastructure
+  path: ./configs
   prune: true
   patches:
     - patch: |
