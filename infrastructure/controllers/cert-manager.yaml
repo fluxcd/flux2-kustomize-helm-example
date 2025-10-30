@@ -7,13 +7,18 @@ metadata:
     toolkit.fluxcd.io/tenant: sre-team
 ---
 apiVersion: source.toolkit.fluxcd.io/v1
-kind: HelmRepository
+kind: OCIRepository
 metadata:
   name: cert-manager
   namespace: cert-manager
 spec:
   interval: 24h
-  url: https://charts.jetstack.io
+  url: oci://quay.io/jetstack/charts/cert-manager
+  layerSelector:
+    mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
+    operation: copy
+  ref:
+    semver: "1.x"
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -21,16 +26,18 @@ metadata:
   name: cert-manager
   namespace: cert-manager
 spec:
-  interval: 30m
-  chart:
-    spec:
-      chart: cert-manager
-      version: "1.x"
-      sourceRef:
-        kind: HelmRepository
-        name: cert-manager
-        namespace: cert-manager
-      interval: 12h
+  interval: 12h
+  install:
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 2m
+  upgrade:
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 3m
+  chartRef:
+    kind: OCIRepository
+    name: cert-manager
   values:
     crds:
       enabled: true
