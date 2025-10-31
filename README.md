@@ -295,7 +295,7 @@ from the contents of the **apps/base** and **apps/staging** dirs.
 The `ArtifactGenerator` allows us to split the monorepo into smaller artifacts that can be synced independently.
 Changes to files outside the **apps/** dirs will not trigger a reconciliation of the apps Kustomization.
 
-## Bootstrap
+## Bootstrap with Flux CLI
 
 Fork this repository on your personal GitHub account and export your GitHub access token, username and repo name:
 
@@ -375,50 +375,76 @@ infra-configs           latest@sha256:c0ac3648      True    Applied revision: la
 apps                    latest@sha256:26785ee4      True    Applied revision: latest@sha256:26785ee4
 ```
 
-### Add clusters
+## Bootstrap with Flux Operator
 
-If you want to add a cluster to your fleet, first clone your repo locally:
+The [Flux Operator](https://github.com/controlplaneio-fluxcd/flux-operator) offers an alternative
+to the Flux CLI bootstrap procedure. It removes the operational burden of managing Flux across fleets
+of clusters by fully automating the installation, configuration, and upgrade of the Flux controllers
+based on a declarative API called [FluxInstance](https://fluxcd.control-plane.io/operator/fluxinstance/).
 
-```sh
-git clone https://github.com/${GITHUB_USER}/${GITHUB_REPO}.git
-cd ${GITHUB_REPO}
-```
-
-Create a dir inside `clusters` with your cluster name:
+Install the Flux Operator CLI with Homebrew:
 
 ```sh
-mkdir -p clusters/dev
+brew install controlplaneio/tap/flux-operator
 ```
 
-Copy the sync manifests from staging:
+Install the Flux Operator on the staging cluster and bootstrap Flux with:
 
 ```sh
-cp clusters/staging/artifacts.yaml clusters/dev
-cp clusters/staging/infrastructure.yaml clusters/dev
-cp clusters/staging/apps.yaml clusters/dev
+flux-operator install \
+    --kube-context=staging \
+    --instance-components-extra=source-watcher \
+    --instance-sync-url=https://github.com/${GITHUB_USER}/${GITHUB_REPO} \
+    --instance-sync-ref=refs/heads/main \
+    --instance-sync-path=clusters/staging \
+    --instance-sync-creds=git:${GITHUB_TOKEN}
 ```
 
-You could create a dev overlay inside `apps`, make sure
-to change the `spec.path` inside `clusters/dev/apps.yaml` to `path: ./apps/dev`. 
+The command deploys the Flux Operator and creates a `FluxInstance` resource that manages
+the Flux controllers lifecycle and syncs the manifests from the specified GitHub repository path.
+You can also provide a `FluxInstance` manifest file to the command with `flux-operator install -f fluxinstance.yaml`.
 
-Push the changes to the main branch:
+> [!TIP]
+> On production systems, the Flux Operator can be installed with Helm, Terraform/OpenTofu or directly from OperatorHub.
+> For more details, please refer to the [Flux Operator documentation](https://fluxcd.control-plane.io/operator/install/).
 
-```sh
-git add -A && git commit -m "add dev cluster" && git push
+To list all the resources managed by the Flux on the cluster, use:
+
+```console
+$ flux-operator -n flux-system tree ks flux-system
+Kustomization/flux-system/flux-system
+├── Kustomization/flux-system/apps
+│   ├── Namespace/podinfo
+│   ├── HelmRelease/podinfo/podinfo
+│   │   ├── ConfigMap/podinfo/podinfo-redis
+│   │   ├── Service/podinfo/podinfo-redis
+│   │   ├── Service/podinfo/podinfo
+│   │   ├── Deployment/podinfo/podinfo
+│   │   ├── Deployment/podinfo/podinfo-redis
+│   │   └── Ingress/podinfo/podinfo
+│   └── HelmRepository/podinfo/podinfo
+├── Kustomization/flux-system/infra-configs
+│   └── ClusterIssuer/letsencrypt
+├── Kustomization/flux-system/infra-controllers
+│   ├── Namespace/cert-manager
+│   ├── Namespace/ingress-nginx
+│   ├── HelmRelease/cert-manager/cert-manager
+│   ├── HelmRelease/ingress-nginx/ingress-nginx
+│   ├── HelmRepository/ingress-nginx/ingress-nginx
+│   └── OCIRepository/cert-manager/cert-manager
+└── ArtifactGenerator/flux-system/flux-system
 ```
 
-Set the kubectl context and path to your dev cluster and bootstrap Flux:
+Using Flux Operator to bootstrap Flux comes with several benefits:
 
-```sh
-flux bootstrap github \
-    --components-extra=source-watcher \
-    --context=dev \
-    --owner=${GITHUB_USER} \
-    --repository=${GITHUB_REPO} \
-    --branch=main \
-    --personal \
-    --path=clusters/dev
-```
+- The operator does not require write access to the Git repository and works with [GitHub Apps](https://fluxcd.control-plane.io/operator/flux-sync/#sync-from-a-git-repository-using-github-app-auth) and other OIDC providers.
+- Production clusters can be configured to sync their state from [Git tags](https://fluxcd.control-plane.io/operator/flux-kustomize/#cluster-sync-semver-range) instead of the main branch, allowing safe promotion of changes from staging to production.
+- The upgrade of Flux controllers and their CRDs is fully automated (can be customized via the `FluxInstance` [distribution](https://fluxcd.control-plane.io/operator/fluxinstance/#distribution-version) field).
+- The `FluxInstance` API allows configuring multi-tenancy lockdown, network policies, persistent storage, sharding, and vertical scaling of the Flux controllers.
+- The operator allows bootstrapping Flux in a [GitLess mode](https://fluxcd.control-plane.io/operator/flux-sync/#sync-from-a-container-registry), where the cluster state is stored as OCI artifacts in container registries.
+- The operator extends Flux with self-service capabilities via the [ResourceSet](https://fluxcd.control-plane.io/operator/resourcesets/) API which is designed to reduce the complexity of GitOps workflows.
+
+To migrate an existing Flux installation to Flux Operator, please refer to the [bootstrap migration guide](https://fluxcd.control-plane.io/operator/flux-bootstrap-migration/).
 
 ## Testing
 
