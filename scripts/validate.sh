@@ -42,7 +42,7 @@ curl -sL https://github.com/fluxcd/flux2/releases/latest/download/crd-schemas.ta
 find . -type f -name '*.yaml' -print0 | while IFS= read -r -d $'\0' file;
   do
     echo "INFO - Validating $file"
-    yq e 'true' "$file" > /dev/null
+    yq -e 'true' "$file" > /dev/null
 done
 
 echo "INFO - Validating clusters"
