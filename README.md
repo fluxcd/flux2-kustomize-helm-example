@@ -39,7 +39,7 @@ curl -s https://fluxcd.io/install.sh | sudo bash
 The Git repository contains the following top directories:
 
 - **apps** dir contains Helm releases with a custom configuration per cluster
-- **infrastructure** dir contains common infra tools such as ingress-nginx and cert-manager
+- **infrastructure** dir contains common infra tools such as Envoy Gateway and cert-manager
 - **clusters** dir contains the Flux configuration per cluster
 
 ```
@@ -98,9 +98,19 @@ spec:
         namespace: flux-system
   interval: 50m
   values:
-    ingress:
+    httpRoute:
       enabled: true
-      className: nginx
+      parentRefs:
+        - name: envoy
+          namespace: envoy-gateway-system
+          sectionName: http
+      hostnames:
+        - podinfo.local
+      rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
 ```
 
 In **apps/staging/** dir we have a Kustomize patch with the staging specific values:
@@ -117,9 +127,9 @@ spec:
   test:
     enable: true
   values:
-    ingress:
-      hosts:
-        - host: podinfo.staging
+    httpRoute:
+      hostnames:
+        - podinfo.staging
 ```
 
 Note that with `version: ">=1.0.0-alpha"` we configure Flux to automatically upgrade
@@ -138,9 +148,9 @@ spec:
     spec:
       version: ">=1.0.0"
   values:
-    ingress:
-      hosts:
-        - host: podinfo.production
+    httpRoute:
+      hostnames:
+        - podinfo.production
 ```
 
 Note that with ` version: ">=1.0.0"` we configure Flux to automatically upgrade
@@ -157,10 +167,12 @@ The infrastructure is structured into:
 ./infrastructure/
 ├── configs
 │   ├── cluster-issuers.yaml
+│   ├── gateway.yaml
 │   └── kustomization.yaml
 └── controllers
     ├── cert-manager.yaml
-    ├── ingress-nginx.yaml
+    ├── envoy-gateway.yaml
+    ├── gateway-api.yaml
     └── kustomization.yaml
 ```
 
@@ -200,6 +212,39 @@ spec:
 Note that in the `OCIRepository` we configure Flux to check for new chart versions every 24 hours.
 If a newer chart is found that matches the `semver: 1.x` constraint, Flux will upgrade the release accordingly.
 
+The Gateway API CRDs are installed from the upstream `kubernetes-sigs/gateway-api` repository using a
+`GitRepository` source and a Flux `Kustomization` that applies the experimental channel CRDs:
+
+```yaml
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: gateway-api
+  namespace: envoy-gateway-system
+spec:
+  interval: 24h
+  url: https://github.com/kubernetes-sigs/gateway-api
+  ref:
+    semver: "1.x"
+  sparseCheckout:
+    - config/crd/
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: gateway-api
+  namespace: envoy-gateway-system
+spec:
+  interval: 24h
+  retryInterval: 5m
+  timeout: 3m
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: gateway-api
+  path: ./config/crd/experimental
+```
+
 In **infrastructure/configs/** dir we have Kubernetes custom resources, such as the Let's Encrypt issuer:
 
 ```yaml
@@ -213,11 +258,14 @@ spec:
     email: fluxcdbot@users.noreply.github.com
     server: https://acme-staging-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
-      name: letsencrypt-nginx
+      name: letsencrypt
     solvers:
       - http01:
-          ingress:
-            class: nginx
+          gatewayHTTPRoute:
+            parentRefs:
+              - name: envoy
+                namespace: envoy-gateway-system
+                kind: Gateway
 ```
 
 In **clusters/production/infrastructure.yaml** we replace the Let's Encrypt server value to point to the production API:
@@ -332,16 +380,18 @@ Watch for the Helm releases being installed on staging:
 ```console
 $ watch flux get helmreleases --all-namespaces
 
-NAMESPACE    	NAME         	REVISION	SUSPENDED	READY	MESSAGE 
-cert-manager 	cert-manager 	1.19.1   	False    	True 	Helm install succeeded
-ingress-nginx	ingress-nginx	4.13.4   	False    	True 	Helm install succeeded
-podinfo      	podinfo      	6.9.2   	False    	True 	Helm install succeeded
+NAMESPACE           	NAME                	REVISION	SUSPENDED	READY	MESSAGE 
+cert-manager        	cert-manager        	1.19.1  	False    	True 	Helm install succeeded
+envoy-gateway-system	envoy-gateway-crds  	1.6.0   	False    	True 	Helm install succeeded
+envoy-gateway-system	envoy-gateway       	1.6.0   	False    	True 	Helm install succeeded
+podinfo             	podinfo             	6.9.2   	False    	True 	Helm install succeeded
 ```
 
-Verify that the demo app can be accessed via ingress:
+Verify that the demo app can be accessed via the Envoy Gateway:
 
 ```console
-$ kubectl -n ingress-nginx port-forward svc/ingress-nginx-controller 8080:80 &
+$ kubectl -n envoy-gateway-system port-forward \
+    $(kubectl -n envoy-gateway-system get svc -l gateway.envoyproxy.io/owning-gateway-name=envoy -o name) 8080:80 &
 
 $ curl -H "Host: podinfo.staging" http://localhost:8080
 {
@@ -421,30 +471,36 @@ Kustomization/flux-system/flux-system
 │   │   ├── Service/podinfo/podinfo
 │   │   ├── Deployment/podinfo/podinfo
 │   │   ├── Deployment/podinfo/podinfo-redis
-│   │   └── Ingress/podinfo/podinfo
+│   │   └── HTTPRoute/podinfo/podinfo
 │   └── HelmRepository/podinfo/podinfo
 ├── Kustomization/flux-system/infra-configs
-│   └── ClusterIssuer/letsencrypt
+│   ├── ClusterIssuer/letsencrypt
+│   ├── GatewayClass/envoy
+│   └── Gateway/envoy-gateway-system/envoy
 ├── Kustomization/flux-system/infra-controllers
 │   ├── Namespace/cert-manager
-│   ├── Namespace/ingress-nginx
+│   ├── Namespace/envoy-gateway-system
 │   ├── HelmRelease/cert-manager/cert-manager
-│   ├── HelmRelease/ingress-nginx/ingress-nginx
-│   ├── HelmRepository/ingress-nginx/ingress-nginx
-│   └── OCIRepository/cert-manager/cert-manager
+│   ├── HelmRelease/envoy-gateway-system/envoy-gateway-crds
+│   ├── HelmRelease/envoy-gateway-system/envoy-gateway
+│   ├── Kustomization/envoy-gateway-system/gateway-api
+│   ├── OCIRepository/cert-manager/cert-manager
+│   ├── OCIRepository/envoy-gateway-system/envoy-gateway-crds
+│   ├── OCIRepository/envoy-gateway-system/gateway-helm
+│   └── GitRepository/envoy-gateway-system/gateway-api
 └── ArtifactGenerator/flux-system/flux-system
 ```
 
 Using Flux Operator to bootstrap Flux comes with several benefits:
 
-- The operator does not require write access to the Git repository and works with [GitHub Apps](https://fluxcd.control-plane.io/operator/flux-sync/#sync-from-a-git-repository-using-github-app-auth) and other OIDC providers.
-- Production clusters can be configured to sync their state from [Git tags](https://fluxcd.control-plane.io/operator/flux-kustomize/#cluster-sync-semver-range) instead of the main branch, allowing safe promotion of changes from staging to production.
-- The upgrade of Flux controllers and their CRDs is fully automated (can be customized via the `FluxInstance` [distribution](https://fluxcd.control-plane.io/operator/fluxinstance/#distribution-version) field).
+- The operator does not require write access to the Git repository and works with [GitHub Apps](https://fluxoperator.dev/docs/instance/sync/#sync-from-a-git-repository-using-github-app-auth) and other OIDC providers.
+- Production clusters can be configured to sync their state from [Git tags](https://fluxoperator.dev/docs/instance/customization/#cluster-sync-semver-range) instead of the main branch, allowing safe promotion of changes from staging to production.
+- The upgrade of Flux controllers and their CRDs is fully automated (can be customized via the `FluxInstance` [distribution](https://fluxoperator.dev/docs/crd/fluxinstance/#distribution-version) field).
 - The `FluxInstance` API allows configuring multi-tenancy lockdown, network policies, persistent storage, sharding, and vertical scaling of the Flux controllers.
-- The operator allows bootstrapping Flux in a [GitLess mode](https://fluxcd.control-plane.io/operator/flux-sync/#sync-from-a-container-registry), where the cluster state is stored as OCI artifacts in container registries.
-- The operator extends Flux with self-service capabilities via the [ResourceSet](https://fluxcd.control-plane.io/operator/resourcesets/) API which is designed to reduce the complexity of GitOps workflows.
+- The operator allows bootstrapping Flux in a [GitLess mode](https://fluxoperator.dev/gitless-gitops/), where the cluster state is stored as OCI artifacts in container registries.
+- The operator extends Flux with self-service capabilities via the [ResourceSet](https://fluxoperator.dev/docs/resourcesets/introduction/) API which is designed to reduce the complexity of GitOps workflows.
 
-To migrate an existing Flux installation to Flux Operator, please refer to the [bootstrap migration guide](https://fluxcd.control-plane.io/operator/flux-bootstrap-migration/).
+To migrate an existing Flux installation to Flux Operator, please refer to the [bootstrap migration guide](https://fluxoperator.dev/docs/guides/migration/).
 
 ## Testing
 

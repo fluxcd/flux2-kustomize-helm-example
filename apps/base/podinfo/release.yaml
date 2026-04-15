@@ -21,7 +21,17 @@ spec:
     redis:
       enabled: true
       repository: public.ecr.aws/docker/library/redis
-      tag: 7.0.6
-    ingress:
+      tag: 8.6.2
+    httpRoute:
       enabled: true
-      className: nginx
+      parentRefs:
+        - name: envoy
+          namespace: envoy-gateway-system
+          sectionName: http
+      hostnames:
+        - podinfo.local
+      rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /
