@@ -73,10 +73,10 @@ The apps configuration is structured into:
 │       └── repository.yaml
 ├── production
 │   ├── kustomization.yaml
-│   └── podinfo-patch.yaml
+│   └── podinfo-values.yaml
 └── staging
     ├── kustomization.yaml
-    └── podinfo-patch.yaml
+    └── podinfo-values.yaml
 ```
 
 In **apps/base/podinfo/** dir we have a Flux `HelmRelease` with common values for both clusters:
@@ -88,6 +88,7 @@ metadata:
   name: podinfo
   namespace: podinfo
 spec:
+  interval: 50m
   releaseName: podinfo
   chart:
     spec:
@@ -96,7 +97,6 @@ spec:
         kind: HelmRepository
         name: podinfo
         namespace: flux-system
-  interval: 50m
   values:
     httpRoute:
       enabled: true
@@ -167,12 +167,11 @@ The infrastructure is structured into:
 ./infrastructure/
 ├── configs
 │   ├── cluster-issuers.yaml
-│   ├── gateway.yaml
+│   ├── gateway.yaml
 │   └── kustomization.yaml
 └── controllers
     ├── cert-manager.yaml
     ├── envoy-gateway.yaml
-    ├── gateway-api.yaml
     └── kustomization.yaml
 ```
 
@@ -207,43 +206,12 @@ spec:
     crds:
       enabled: true
       keep: false
+    config:
+      enableGatewayAPI: true
 ```
 
 Note that in the `OCIRepository` we configure Flux to check for new chart versions every 24 hours.
 If a newer chart is found that matches the `semver: 1.x` constraint, Flux will upgrade the release accordingly.
-
-The Gateway API CRDs are installed from the upstream `kubernetes-sigs/gateway-api` repository using a
-`GitRepository` source and a Flux `Kustomization` that applies the experimental channel CRDs:
-
-```yaml
-apiVersion: source.toolkit.fluxcd.io/v1
-kind: GitRepository
-metadata:
-  name: gateway-api
-  namespace: envoy-gateway-system
-spec:
-  interval: 24h
-  url: https://github.com/kubernetes-sigs/gateway-api
-  ref:
-    semver: "1.x"
-  sparseCheckout:
-    - config/crd/
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: gateway-api
-  namespace: envoy-gateway-system
-spec:
-  interval: 24h
-  retryInterval: 5m
-  timeout: 3m
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: gateway-api
-  path: ./config/crd/experimental
-```
 
 In **infrastructure/configs/** dir we have Kubernetes custom resources, such as the Let's Encrypt issuer:
 
@@ -382,9 +350,8 @@ $ watch flux get helmreleases --all-namespaces
 
 NAMESPACE           	NAME                	REVISION	SUSPENDED	READY	MESSAGE 
 cert-manager        	cert-manager        	1.19.1  	False    	True 	Helm install succeeded
-envoy-gateway-system	envoy-gateway-crds  	1.6.0   	False    	True 	Helm install succeeded
-envoy-gateway-system	envoy-gateway       	1.6.0   	False    	True 	Helm install succeeded
-podinfo             	podinfo             	6.9.2   	False    	True 	Helm install succeeded
+envoy-gateway-system	envoy-gateway       	1.8.0   	False    	True 	Helm install succeeded
+podinfo             	podinfo             	6.11.2   	False    	True 	Helm install succeeded
 ```
 
 Verify that the demo app can be accessed via the Envoy Gateway:
@@ -396,7 +363,7 @@ $ kubectl -n envoy-gateway-system port-forward \
 $ curl -H "Host: podinfo.staging" http://localhost:8080
 {
   "hostname": "podinfo-59489db7b5-lmwpn",
-  "version": "6.9.2"
+  "version": "6.11.2"
 }
 ```
 
@@ -430,7 +397,7 @@ apps                    latest@sha256:26785ee4      True    Applied revision: la
 The [Flux Operator](https://github.com/controlplaneio-fluxcd/flux-operator) offers an alternative
 to the Flux CLI bootstrap procedure. It removes the operational burden of managing Flux across fleets
 of clusters by fully automating the installation, configuration, and upgrade of the Flux controllers
-based on a declarative API called [FluxInstance](https://fluxcd.control-plane.io/operator/fluxinstance/).
+based on a declarative API called [FluxInstance](https://fluxoperator.dev/docs/crd/fluxinstance/).
 
 Install the Flux Operator CLI with Homebrew:
 
@@ -456,7 +423,7 @@ You can also provide a `FluxInstance` manifest file to the command with `flux-op
 
 > [!TIP]
 > On production systems, the Flux Operator can be installed with Helm, Terraform/OpenTofu or directly from OperatorHub.
-> For more details, please refer to the [Flux Operator documentation](https://fluxcd.control-plane.io/operator/install/).
+> For more details, please refer to the [Flux Operator documentation](https://fluxoperator.dev/docs/guides/install/).
 
 To list all the resources managed by the Flux on the cluster, use:
 
@@ -481,13 +448,9 @@ Kustomization/flux-system/flux-system
 │   ├── Namespace/cert-manager
 │   ├── Namespace/envoy-gateway-system
 │   ├── HelmRelease/cert-manager/cert-manager
-│   ├── HelmRelease/envoy-gateway-system/envoy-gateway-crds
 │   ├── HelmRelease/envoy-gateway-system/envoy-gateway
-│   ├── Kustomization/envoy-gateway-system/gateway-api
 │   ├── OCIRepository/cert-manager/cert-manager
-│   ├── OCIRepository/envoy-gateway-system/envoy-gateway-crds
-│   ├── OCIRepository/envoy-gateway-system/gateway-helm
-│   └── GitRepository/envoy-gateway-system/gateway-api
+│   └── OCIRepository/envoy-gateway-system/gateway-helm
 └── ArtifactGenerator/flux-system/flux-system
 ```
 

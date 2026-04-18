@@ -30,11 +30,9 @@ spec:
   install:
     strategy:
       name: RetryOnFailure
-      retryInterval: 2m
   upgrade:
     strategy:
       name: RetryOnFailure
-      retryInterval: 3m
   chartRef:
     kind: OCIRepository
     name: cert-manager
@@ -43,7 +41,4 @@ spec:
       enabled: true
       keep: false
     config:
-      apiVersion: controller.config.cert-manager.io/v1alpha1
-      kind: ControllerConfiguration
-      featureGates:
-        ExperimentalGatewayAPISupport: true
+      enableGatewayAPI: true
