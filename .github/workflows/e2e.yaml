@@ -40,6 +40,12 @@ jobs:
       - name: Verify helm reconciliation
         run: |
           kubectl -n podinfo wait helmrelease/podinfo --for=condition=ready --timeout=5m
+      - name: Verify gateway routing
+        run: |
+          kubectl -n envoy-gateway-system port-forward \
+            $(kubectl -n envoy-gateway-system get svc -l gateway.envoyproxy.io/owning-gateway-name=envoy -o name) 8080:80 &
+          sleep 5
+          curl -sSf -H "Host: podinfo.staging" http://localhost:8080
       - name: List deployed resources
         run: flux tree ks flux-system
       - name: Debug failure
