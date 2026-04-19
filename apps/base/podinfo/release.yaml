@@ -4,6 +4,7 @@ metadata:
   name: podinfo
   namespace: podinfo
 spec:
+  interval: 50m
   releaseName: podinfo
   chart:
     spec:
@@ -11,17 +12,29 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: podinfo
-  interval: 50m
   install:
-    remediation:
-      retries: 3
+    strategy:
+      name: RetryOnFailure
+  upgrade:
+    strategy:
+      name: RetryOnFailure
   # Default values
   # https://github.com/stefanprodan/podinfo/blob/master/charts/podinfo/values.yaml
   values:
     redis:
       enabled: true
       repository: public.ecr.aws/docker/library/redis
-      tag: 7.0.6
-    ingress:
+      tag: 8.6.2
+    httpRoute:
       enabled: true
-      className: nginx
+      parentRefs:
+        - name: envoy
+          namespace: envoy-gateway-system
+          sectionName: http
+      hostnames:
+        - podinfo.local
+      rules:
+        - matches:
+            - path:
+                type: PathPrefix
+                value: /

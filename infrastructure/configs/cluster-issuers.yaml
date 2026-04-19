@@ -10,8 +10,11 @@ spec:
     # The server is replaced in /clusters/production/infrastructure.yaml
     server: https://acme-staging-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
-      name: letsencrypt-nginx
+      name: letsencrypt
     solvers:
       - http01:
-          ingress:
-            class: nginx
+          gatewayHTTPRoute:
+            parentRefs:
+              - name: envoy
+                namespace: envoy-gateway-system
+                kind: Gateway

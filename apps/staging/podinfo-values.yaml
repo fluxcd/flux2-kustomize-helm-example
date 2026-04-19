@@ -10,9 +10,6 @@ spec:
   test:
     enable: false
   values:
-    ingress:
-      hosts:
-        - host: podinfo.staging
-          paths:
-            - path: /
-              pathType: ImplementationSpecific
+    httpRoute:
+      hostnames:
+        - podinfo.staging
