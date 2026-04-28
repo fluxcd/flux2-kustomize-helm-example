@@ -1,0 +1,10 @@
+version: "1"
+validate:
+  schema-location:
+    - default
+    - https://raw.githubusercontent.com/datreeio/CRDs-catalog/main
+  skip-json-path:
+    - Secret:/sops
+  skip-missing-schemas: true
+  verbose: true
+  output: text

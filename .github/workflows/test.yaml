@@ -11,10 +11,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - uses: fluxcd/flux-schema/actions/setup@main
-      - uses: fluxcd/flux-schema/actions/validate@main
+      - name: Setup Flux CLI
+        uses: fluxcd/flux2/action@main
+      - name: Setup Flux Schema CLI
+        uses: fluxcd/flux-schema/actions/setup@main
+      - name: Validate manifests
+        uses: fluxcd/flux-schema/actions/validate@main
         with:
-          path: "."
-          schema-location: |
-            default
-            https://raw.githubusercontent.com/datreeio/CRDs-catalog/main
+          path: '.'
+          config: '.fluxschema.yml'
+      - name: Validate API versions
+        run: |
+          flux migrate -f . --yes
+          if [[ $(git diff --stat) != '' ]]; then
+            git --no-pager diff
+            echo 'deprecated API versions found, run flux migrate and commit changes'
+            exit 1
+          fi
