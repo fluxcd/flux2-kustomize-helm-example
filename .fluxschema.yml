@@ -2,8 +2,7 @@ apiVersion: schema.plugin.fluxcd.io/v1beta1
 kind: Config
 validate:
   schemaLocation:
-    - default
-    - https://raw.githubusercontent.com/datreeio/CRDs-catalog/main
+    - ecosystem # https://schemas.fluxoperator.dev/
   skipJSONPath:
     - Secret:/sops
   skipMissingSchemas: true

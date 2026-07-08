@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup Flux CLI
         uses: fluxcd/flux2/action@main
       - name: Setup Flux Schema CLI
