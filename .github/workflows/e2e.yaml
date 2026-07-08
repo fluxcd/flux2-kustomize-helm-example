@@ -11,15 +11,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup Flux CLI
         uses: fluxcd/flux2/action@main
       - name: Setup Kubernetes
         uses: helm/kind-action@v1.14.0
         with:
           cluster_name: flux
-          version: v0.31.0
-          node_image: kindest/node:v1.35.1
+          version: v0.32.0
+          node_image: kindest/node:v1.36.1
       - name: Install Flux in Kubernetes Kind
         run: flux install --components-extra source-watcher
       - name: Setup cluster reconciliation
